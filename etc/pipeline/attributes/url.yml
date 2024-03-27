@@ -1,0 +1,5 @@
+stages:
+  -
+    pipeline: Stage\Extract
+    args:
+      extraction: currentCategory::getUrl()

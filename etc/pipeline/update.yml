@@ -1,0 +1,71 @@
+
+stages:
+  logStart:
+    pipeline: Indexing\Stage\Log
+    args:
+      message: "Start Update Categories Pipeline"
+  iterateCategories:
+    pipeline: Pipeline\Iterate
+    args:
+      continueOnException:
+        iterateCategories.processIndexingRecordStart.filterRootCategories:
+          - Klevu\Pipelines\Exception\ValidationExceptionInterface
+    stages:
+      processIndexingRecordStart:
+        stages:
+          registerIndexingRecordToContext:
+            pipeline: Stage\RegisterContext
+            args:
+              contextKey: currentIndexingRecord
+          registerCategoryToContext:
+            stages:
+              extractCategory:
+                pipeline: Stage\Extract
+                args:
+                  extraction: currentIndexingRecord::getEntity()
+              registerCategory:
+                pipeline: Stage\RegisterContext
+                args:
+                  contextKey: currentCategory
+          registerActionToContext:
+            stages:
+              createAction:
+                pipeline: Stage\StaticValue
+                args:
+                  value: "Update"
+              registerAction:
+                pipeline: Stage\RegisterContext
+                args:
+                  contextKey: "currentAction"
+          registerEntityTypeToContext:
+            stages:
+              createEntityType:
+                pipeline: Stage\StaticValue
+                args:
+                  value: "KLEVU_CATEGORY"
+              registerEntityType:
+                pipeline: Stage\RegisterContext
+                args:
+                  contextKey: "currentEntityType"
+          filterRootCategories:
+            stages:
+              -
+                pipeline: Stage\Extract
+                args:
+                  extraction: currentCategory::getPath()
+                  transformations: Split("/")|Count
+              -
+                pipeline: Stage\Validate
+                args:
+                  validation: IsGreaterThan(2)
+      processCategory:
+        stages:
+          createRecord:
+            import: transform-category.yml
+  processPayload:
+    #        import: Klevu_Indexing::etc/pipeline/process-batch-payload.yml
+    import: ../../../module-m2-indexing/etc/pipeline/process-batch-payload.yml
+  logEnd:
+    pipeline: Indexing\Stage\Log
+    args:
+      message: "End Update Categories Pipeline"

@@ -1,0 +1,5 @@
+"Indexing - Categories","Indexing - Categories"
+"Exclude Disabled Categories","Exclude Disabled Categories"
+"Reduces the total records index, but will increase indexing time and complexity","Reduces the total records index, but will increase indexing time and complexity"
+"Invalid argument provided. Expected %1 or %2, received %3.","Invalid argument provided. Expected %1 or %2, received %3."
+"Invalid argument provided. %2 must be of type %3.","Invalid argument provided. %2 must be of type %3."

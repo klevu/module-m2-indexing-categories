@@ -1,0 +1,30 @@
+stages:
+  -
+    pipeline: Pipeline\Fallback
+    stages:
+      imageGeneration:
+        stages:
+          - pipeline: Stage\Extract
+            args:
+              extraction: currentCategory::getImage()
+          - pipeline: Stage\Validate
+            args:
+              validation: IsNotEmpty
+          - pipeline: Pipeline\CreateRecord
+            stages:
+              - pipeline: Pipeline\CreateRecord
+                stages:
+                  url:
+                    pipeline: Stage\Transform
+                    args:
+                      transformation:
+                        - Prepend($store::getForCurrentStore().base_url)
+                  type:
+                    pipeline: Stage\StaticValue
+                    args:
+                      value: "default"
+      default:
+        stages:
+          - pipeline: Stage\StaticValue
+            args:
+              value: null

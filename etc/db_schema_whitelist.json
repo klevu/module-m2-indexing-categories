@@ -1,0 +1,8 @@
+{
+    "catalog_eav_attribute": {
+        "column": {
+            "klevu_is_indexable": true,
+            "klevu_aspect_mapping": true
+        }
+    }
+}

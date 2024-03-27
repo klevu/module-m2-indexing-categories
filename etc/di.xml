@@ -1,0 +1,467 @@
+<?xml version="1.0"?>
+
+<!-- Copyright © Klevu Oy. All rights reserved. See LICENSE.txt for license details. -->
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <preference for="Klevu\IndexingCategories\Service\Provider\CategoryPathProviderInterface"
+                type="Klevu\IndexingCategories\Service\Provider\CategoryPathProvider"/>
+
+    <type name="Klevu\IndexingCategories\Observer\CategoryAttributeObserver">
+        <arguments>
+            <argument name="responderService"
+                      xsi:type="object">Klevu\IndexingCategories\Service\AttributeUpdateResponderService</argument>
+            <argument name="logger" xsi:type="object">Klevu\Indexing\Logger\Logger</argument>
+        </arguments>
+    </type>
+
+    <virtualType name="Klevu\IndexingCategories\Service\Provider\SyncEnabledProvider"
+                 type="Klevu\Configuration\Service\Provider\ScopeConfigProvider">
+        <arguments>
+            <argument name="path" xsi:type="string">klevu/indexing/enable_category_sync</argument>
+            <argument name="returnType"
+                      xsi:type="const">Klevu\Configuration\Service\Provider\ScopeConfigProvider::TYPE_BOOLEAN</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Klevu\IndexingCategories\Service\Provider\CategoryEntityProvider">
+        <arguments>
+            <argument name="logger" xsi:type="object">Klevu\Indexing\Logger\Logger</argument>
+            <argument name="syncEnabledProvider"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\SyncEnabledProvider</argument>
+        </arguments>
+    </type>
+
+    <virtualType name="Klevu\IndexingCategories\Service\Determiner\IsIndexableDeterminer"
+                 type="Klevu\Indexing\Service\Determiner\IsIndexableDeterminer">
+        <arguments>
+            <argument name="isIndexableDeterminers" xsi:type="array">
+                <item name="DisabledCategoriesIsIndexableDeterminer"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Determiner\DisabledCategoriesIsIndexableDeterminer</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\Service\Provider\EntityDiscoveryProvider"
+                 type="Klevu\Indexing\Service\Provider\EntityDiscoveryProvider">
+        <arguments>
+            <argument name="entityType" xsi:type="string">KLEVU_CATEGORY</argument>
+            <argument name="entityProviders" xsi:type="array">
+                <item name="categories"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\CategoryEntityProvider</item>
+            </argument>
+            <argument name="isIndexableDeterminer"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Determiner\IsIndexableDeterminer</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Klevu\Indexing\Service\EntityDiscoveryOrchestratorService">
+        <arguments>
+            <argument name="discoveryProviders" xsi:type="array">
+                <item name="categories"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\EntityDiscoveryProvider</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Klevu\IndexingCategories\Service\Determiner\DisabledCategoriesIsIndexableDeterminer">
+        <arguments>
+            <argument name="logger" xsi:type="object">Klevu\Indexing\Logger\Logger</argument>
+        </arguments>
+    </type>
+
+    <type name="Klevu\IndexingCategories\Setup\Patch\Data\SetDefaultAttributeSyncValues">
+        <arguments>
+            <argument name="defaultIndexingAttributesProvider"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\DefaultIndexingAttributesProvider</argument>
+        </arguments>
+    </type>
+
+    <type name="Klevu\IndexingCategories\Service\Determiner\AttributeIsIndexableDeterminer">
+        <arguments>
+            <argument name="logger" xsi:type="object">Klevu\Indexing\Logger\Logger</argument>
+            <argument name="categoryAttributeValidator"
+                      xsi:type="object">Klevu\IndexingCategories\Validator\CategoryAttributeValidator</argument>
+        </arguments>
+    </type>
+
+    <virtualType name="Klevu\IndexingCategories\Service\Determiner\IsAttributeIndexableDeterminer"
+                 type="Klevu\Indexing\Service\Determiner\IsAttributeIndexableDeterminer">
+        <arguments>
+            <argument name="isIndexableDeterminers" xsi:type="array">
+                <item name="indexTypeIsIndexableDeterminer"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Determiner\AttributeIsIndexableDeterminer</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Klevu\IndexingCategories\Service\Provider\CategoryAttributeProvider">
+        <arguments>
+            <argument name="categoryAttributeCollection"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\Discovery\CategoryAttributeCollection</argument>
+        </arguments>
+    </type>
+
+    <virtualType name="Klevu\IndexingCategories\Service\Provider\AttributeDiscoveryProvider"
+                 type="Klevu\Indexing\Service\Provider\AttributeDiscoveryProvider">
+        <arguments>
+            <argument name="attributeType" xsi:type="string">KLEVU_CATEGORY</argument>
+            <argument name="attributeProviders" xsi:type="array">
+                <item name="KLEVU_CATEGORY"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\CategoryAttributeProvider
+                </item>
+            </argument>
+            <argument name="attributeMappers" xsi:type="array">
+                <item name="KLEVU_CATEGORY"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Mapper\MagentoToKlevuAttributeMapper</item>
+            </argument>
+            <argument name="isIndexableDeterminer"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Determiner\IsAttributeIndexableDeterminer</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Klevu\Indexing\Service\AttributeDiscoveryOrchestratorService">
+        <arguments>
+            <argument name="discoveryProviders" xsi:type="array">
+                <item name="categories"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\AttributeDiscoveryProvider</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\Catalog\Model\ResourceModel\Category">
+        <plugin name="Klevu_IndexingCategories::CategoryResourceModelPlugin"
+                type="Klevu\IndexingCategories\Plugin\Catalog\Model\ResourceModel\CategoryPlugin"/>
+    </type>
+
+    <type name="Klevu\IndexingCategories\Observer\CategoryDeleteObserver">
+        <arguments>
+            <argument name="responderService"
+                      xsi:type="object">Klevu\IndexingCategories\Service\EntityUpdateResponderService</argument>
+        </arguments>
+    </type>
+
+    <type name="Klevu\IndexingCategories\Observer\CategoryMoveObserver">
+        <arguments>
+            <argument name="responderService"
+                      xsi:type="object">Klevu\IndexingCategories\Service\EntityUpdateResponderService</argument>
+        </arguments>
+    </type>
+
+    <type name="Klevu\IndexingCategories\Plugin\Catalog\Model\ResourceModel\CategoryPlugin">
+        <arguments>
+            <argument name="responderService"
+                      xsi:type="object">Klevu\IndexingCategories\Service\EntityUpdateResponderService</argument>
+            <argument name="attributesToWatchProvider"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\AttributesToWatchProvider</argument>
+        </arguments>
+    </type>
+
+    <type name="Klevu\IndexingCategories\Service\Provider\AttributesToWatchProvider">
+        <arguments>
+            <argument name="indexableAttributesProvider"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\IndexableAttributesProvider</argument>
+        </arguments>
+    </type>
+
+    <virtualType name="Klevu\IndexingCategories\Service\Provider\IndexableAttributesProvider"
+                 type="Klevu\Indexing\Service\Provider\IndexableAttributesProvider">
+        <arguments>
+            <argument name="defaultIndexingAttributesProvider"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\DefaultIndexingAttributesProvider</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- @TODO make this a virtual type -->
+    <type name="Klevu\IndexingCategories\Service\AttributeIndexingRecordCreatorService">
+        <arguments>
+            <argument name="attributeTypeMapperService"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Mapper\AttributeTypeMapperService</argument>
+            <argument name="attributeMapperService"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Mapper\MagentoToKlevuAttributeMapper</argument>
+        </arguments>
+    </type>
+
+    <type name="Klevu\IndexingCategories\Service\AttributeIndexingDeleteRecordCreatorService">
+        <arguments>
+            <argument name="attributeMapperService"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Mapper\MagentoToKlevuAttributeMapper</argument>
+        </arguments>
+    </type>
+
+
+    <virtualType name="Klevu\IndexingCategories\Service\Provider\Sync\AttributeIndexingRecordProvider"
+                 type="Klevu\Indexing\Service\Provider\Sync\AttributeIndexingRecordProvider">
+        <arguments>
+            <argument name="entityType" xsi:type="string">KLEVU_CATEGORY</argument>
+            <argument name="attributeProvider"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\CategoryAttributeProvider
+            </argument>
+            <argument name="indexingRecordCreatorService"
+                      xsi:type="object">Klevu\IndexingCategories\Service\AttributeIndexingRecordCreatorService</argument>
+            <argument name="indexingDeleteRecordCreatorService"
+                      xsi:type="object">Klevu\IndexingCategories\Service\AttributeIndexingDeleteRecordCreatorService</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\Service\Provider\Sync\AttributeIndexingRecordProvider\Add"
+                 type="Klevu\IndexingCategories\Service\Provider\Sync\AttributeIndexingRecordProvider">
+        <arguments>
+            <argument name="action" xsi:type="string">Add</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\Service\AttributeIndexerService\Add"
+                 type="Klevu\Indexing\Service\AttributeIndexerService">
+        <arguments>
+            <argument name="attributeIndexingRecordProvider"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\Sync\AttributeIndexingRecordProvider\Add</argument>
+            <argument name="action"
+                      xsi:type="object">Klevu\Indexing\Service\Action\Sdk\Attribute\AddAction</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\Service\Action\UpdateIndexingAttributeActionsAction\Add"
+                 type="Klevu\Indexing\Service\Action\UpdateIndexingAttributeActionsAction">
+        <arguments>
+            <argument name="lastAction" xsi:type="string">Add</argument>
+            <argument name="targetAttributeType" xsi:type="string">KLEVU_CATEGORY</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\Observer\Sync\Attributes\AddAttributeObserver"
+                 type="Klevu\Indexing\Observer\Sync\Attributes\AddAttributeObserver">
+        <arguments>
+            <argument name="attributeToNameMapper"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Mapper\MagentoToKlevuAttributeMapper</argument>
+            <argument name="logger" xsi:type="object">Klevu\Indexing\Logger\Logger</argument>
+            <argument name="updateIndexingAttributeActionsAction"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Action\UpdateIndexingAttributeActionsAction\Add</argument>
+            <argument name="entityType" xsi:type="string">KLEVU_CATEGORY</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\Service\Provider\Sync\AttributeIndexingRecordProvider\Update"
+                 type="Klevu\IndexingCategories\Service\Provider\Sync\AttributeIndexingRecordProvider">
+        <arguments>
+            <argument name="action" xsi:type="string">Update</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\Service\AttributeIndexerService\Update"
+                 type="Klevu\Indexing\Service\AttributeIndexerService">
+        <arguments>
+            <argument name="attributeIndexingRecordProvider"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\Sync\AttributeIndexingRecordProvider\Update</argument>
+            <argument name="action"
+                      xsi:type="object">Klevu\Indexing\Service\Action\Sdk\Attribute\UpdateAction</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\Service\Action\UpdateIndexingAttributeActionsAction\Update"
+                 type="Klevu\Indexing\Service\Action\UpdateIndexingAttributeActionsAction">
+        <arguments>
+            <argument name="lastAction" xsi:type="string">Update</argument>
+            <argument name="targetAttributeType" xsi:type="string">KLEVU_CATEGORY</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\Observer\Sync\Attributes\UpdateAttributeObserver"
+                 type="Klevu\Indexing\Observer\Sync\Attributes\UpdateAttributeObserver">
+        <arguments>
+            <argument name="attributeToNameMapper"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Mapper\MagentoToKlevuAttributeMapper</argument>
+            <argument name="logger" xsi:type="object">Klevu\Indexing\Logger\Logger</argument>
+            <argument name="updateIndexingAttributeActionsAction"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Action\UpdateIndexingAttributeActionsAction\Update</argument>
+            <argument name="entityType" xsi:type="string">KLEVU_CATEGORY</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\Service\Provider\Sync\AttributeIndexingRecordProvider\Delete"
+                 type="Klevu\IndexingCategories\Service\Provider\Sync\AttributeIndexingRecordProvider">
+        <arguments>
+            <argument name="action" xsi:type="string">Delete</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\Service\AttributeIndexerService\Delete"
+                 type="Klevu\Indexing\Service\AttributeIndexerService">
+        <arguments>
+            <argument name="attributeIndexingRecordProvider"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\Sync\AttributeIndexingRecordProvider\Delete</argument>
+            <argument name="action"
+                      xsi:type="object">Klevu\Indexing\Service\Action\Sdk\Attribute\DeleteAction</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\Service\Action\UpdateIndexingAttributeActionsAction\Delete"
+                 type="Klevu\Indexing\Service\Action\UpdateIndexingAttributeActionsAction">
+        <arguments>
+            <argument name="lastAction" xsi:type="string">Delete</argument>
+            <argument name="targetAttributeType" xsi:type="string">KLEVU_CATEGORY</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\Observer\Sync\Attributes\DeleteAttributeObserver"
+                 type="Klevu\Indexing\Observer\Sync\Attributes\DeleteAttributeObserver">
+        <arguments>
+            <argument name="attributeToNameMapper"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Mapper\MagentoToKlevuAttributeMapper</argument>
+            <argument name="logger" xsi:type="object">Klevu\Indexing\Logger\Logger</argument>
+            <argument name="updateIndexingAttributeActionsAction"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Action\UpdateIndexingAttributeActionsAction\Delete</argument>
+            <argument name="entityType" xsi:type="string">KLEVU_CATEGORY</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Klevu\Indexing\Service\AttributeSyncOrchestratorService">
+        <arguments>
+            <argument name="attributesIndexerServices" xsi:type="array">
+                <item name="KLEVU_CATEGORY" xsi:type="array">
+                    <item name="add"
+                          xsi:type="object">Klevu\IndexingCategories\Service\AttributeIndexerService\Add</item>
+                    <item name="delete"
+                          xsi:type="object">Klevu\IndexingCategories\Service\AttributeIndexerService\Delete</item>
+                    <item name="update"
+                          xsi:type="object">Klevu\IndexingCategories\Service\AttributeIndexerService\Update</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+    <virtualType name="Klevu\IndexingCategories\Service\Provider\CategoryAttributeProvider"
+                 type="Klevu\Indexing\Service\Provider\AttributeProvider">
+        <arguments>
+            <argument name="attributeCollection"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\Discovery\CategoryAttributeCollection</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\Service\Mapper\AttributeTypeMapperService"
+                 type="Klevu\Indexing\Service\Mapper\AttributeTypeMapperService">
+        <arguments>
+            <argument name="customMapping" xsi:type="array"/>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\Service\Mapper\MagentoToKlevuAttributeMapper"
+                 type="Klevu\Indexing\Service\Mapper\MagentoToKlevuAttributeMapper">
+        <arguments>
+            <argument name="entityType"
+                      xsi:type="const">Magento\Catalog\Api\Data\CategoryAttributeInterface::ENTITY_TYPE_CODE</argument>
+            <argument name="prefix" xsi:type="string">cat__</argument>
+            <argument name="attributeMapping" xsi:type="array">
+                <item name="path" xsi:type="string">categoryPath</item>
+                <item name="url_key" xsi:type="string">url</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\Service\Provider\DefaultIndexingAttributesProvider"
+                 type="Klevu\Indexing\Service\Provider\DefaultIndexingAttributesProvider">
+        <arguments>
+            <argument name="entityType" xsi:type="string">KLEVU_CATEGORY</argument>
+            <argument name="attributeToNameMapper"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Mapper\MagentoToKlevuAttributeMapper</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Klevu\IndexingCategories\Setup\Patch\Data\SetDefaultAttributeAspectMapping">
+        <arguments>
+            <argument name="defaultMappingProvider"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\DefaultIndexingAttributesAspectMappingProvider</argument>
+        </arguments>
+    </type>
+
+    <!-- Pipelines -->
+    <type name="Klevu\PlatformPipelines\ObjectManager\TransformerManager">
+        <arguments>
+            <argument name="namespaces" xsi:type="array">
+                <item name="\Klevu\IndexingCategories\Transformer"
+                      xsi:type="const">Klevu\Pipelines\ObjectManager\ObjectManagerInterface::PRIORITY_NAMESPACE_SORT_ORDER</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <virtualType name="Klevu\IndexingCategories\Service\Provider\Sync\EntityIndexingRecordProvider"
+                 type="Klevu\Indexing\Service\Provider\Sync\EntityIndexingRecordProvider">
+        <arguments>
+            <argument name="entityProviders" xsi:type="array">
+                <item name="categories"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\CategoryEntityProvider</item>
+            </argument>
+            <argument name="indexingRecordCreatorService"
+                      xsi:type="object">Klevu\IndexingCategories\Service\EntityIndexingRecordCreatorService</argument>
+            <argument name="entityType" xsi:type="string">KLEVU_CATEGORY</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\Service\Provider\Sync\EntityIndexingRecordProvider\Add"
+                 type="Klevu\IndexingCategories\Service\Provider\Sync\EntityIndexingRecordProvider">
+        <arguments>
+            <argument name="action" xsi:type="string">Add</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\Service\Provider\Sync\EntityIndexingRecordProvider\Delete"
+                 type="Klevu\IndexingCategories\Service\Provider\Sync\EntityIndexingRecordProvider">
+        <arguments>
+            <argument name="action" xsi:type="string">Delete</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\Service\Provider\Sync\EntityIndexingRecordProvider\Update"
+                 type="Klevu\IndexingCategories\Service\Provider\Sync\EntityIndexingRecordProvider">
+        <arguments>
+            <argument name="action" xsi:type="string">Update</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\Service\EntityIndexerService\Add"
+                 type="Klevu\Indexing\Service\EntityIndexerService">
+        <arguments>
+            <argument name="entityIndexingRecordProvider"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\Sync\EntityIndexingRecordProvider\Add</argument>
+            <argument name="pipelineConfigurationFilepath"
+                      xsi:type="string">Klevu_IndexingCategories::etc/pipeline/add.yml</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\Service\EntityIndexerService\Delete"
+                 type="Klevu\Indexing\Service\EntityIndexerService">
+        <arguments>
+            <argument name="entityIndexingRecordProvider"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\Sync\EntityIndexingRecordProvider\Delete</argument>
+            <argument name="pipelineConfigurationFilepath"
+                      xsi:type="string">Klevu_IndexingCategories::etc/pipeline/delete.yml</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\Service\EntityIndexerService\Update"
+                 type="Klevu\Indexing\Service\EntityIndexerService">
+        <arguments>
+            <argument name="entityIndexingRecordProvider"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\Sync\EntityIndexingRecordProvider\Update</argument>
+            <argument name="pipelineConfigurationFilepath"
+                      xsi:type="string">Klevu_IndexingCategories::etc/pipeline/update.yml</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Klevu\Indexing\Service\EntitySyncOrchestratorService">
+        <arguments>
+            <argument name="entityIndexerServices" xsi:type="array">
+                <item name="KLEVU_CATEGORY" xsi:type="array">
+                    <item name="add"
+                          xsi:type="object">Klevu\IndexingCategories\Service\EntityIndexerService\Add</item>
+                    <item name="delete"
+                          xsi:type="object">Klevu\IndexingCategories\Service\EntityIndexerService\Delete</item>
+                    <item name="update"
+                          xsi:type="object">Klevu\IndexingCategories\Service\EntityIndexerService\Update</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+</config>

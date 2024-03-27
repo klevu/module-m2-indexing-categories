@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+
+<!--
+/**
+ * Copyright © Klevu Oy. All rights reserved. See LICENSE.txt for license details.
+ */
+-->
+
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+
+    <table name="catalog_eav_attribute">
+        <column xsi:type="smallint"
+                name="klevu_is_indexable"
+                unsigned="true"
+                nullable="false"
+                identity="false"
+                default="0"
+                comment="Register with Klevu"/>
+        <column xsi:type="smallint"
+                name="klevu_aspect_mapping"
+                unsigned="true"
+                nullable="false"
+                identity="false"
+                default="0"
+                comment="Map To Klevu Aspect"/>
+    </table>
+</schema>
