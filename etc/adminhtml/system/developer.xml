@@ -4,7 +4,7 @@
 
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
-    <group id="categories" translate="label" sortOrder="1000" showInDefault="1" showInWebsite="1" showInStore="1">
+    <group id="categories" translate="label" sortOrder="1010" showInDefault="1" showInWebsite="1" showInStore="1">
         <label>Indexing - Categories</label>
         <field id="exclude_disabled_categories"
                translate="label comment tooltip"
