@@ -2,7 +2,10 @@ pipeline: Pipeline\CreateRecord
 stages:
   default:
     stages:
-      -
+      getDefaultLanguageValue:
         pipeline: Stage\Extract
         args:
           extraction: currentCategory::getName()
+          transformations:
+            - EscapeHtml
+            - Trim

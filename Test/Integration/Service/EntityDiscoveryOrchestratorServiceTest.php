@@ -526,6 +526,266 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
      * @magentoConfigFixture klevu_test_store_1_store klevu_configuration/auth_keys/rest_auth_key klevu-rest-auth-key
      * @magentoConfigFixture default/klevu/indexing/exclude_disabled_categories 1
      */
+    public function testExecute_SetsExistingNonIndexedCategoryToNotIndexable_WhenDisabled(): void
+    {
+        $apiKey = 'klevu-js-api-key';
+
+        $this->createStore();
+        $storeFixture = $this->storeFixturesPool->get('test_store');
+        $store = $storeFixture->get();
+
+        $categoryCollectionCount = count($this->getCategories($store));
+
+        $this->createCategory(
+            categoryData: [
+                'key' => 'test_category_1',
+                'is_active' => false,
+                'stores' => [
+                    $store->getId() => [
+                        'is_active' => false,
+                    ],
+                ],
+            ],
+        );
+        $category = $this->categoryFixturePool->get('test_category_1');
+        $this->cleanIndexingEntities(apiKey: $apiKey);
+
+        $this->createIndexingEntity(data: [
+            IndexingEntity::API_KEY => $apiKey,
+            IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ID => (int)$category->getId(),
+            IndexingEntity::IS_INDEXABLE => true,
+            IndexingEntity::NEXT_ACTION => Actions::ADD,
+            IndexingEntity::LAST_ACTION => Actions::NO_ACTION,
+            IndexingEntity::LAST_ACTION_TIMESTAMP => null,
+        ]);
+
+        $service = $this->instantiateTestObject();
+        $result1 = $service->execute(entityType: 'KLEVU_CATEGORY', apiKeys: [$apiKey]);
+
+        $this->assertTrue($result1->isSuccess());
+        $indexingEntities = $this->getCategoryIndexingEntities($apiKey);
+        $this->assertCount(
+            expectedCount: 1 + $categoryCollectionCount,
+            haystack: $indexingEntities,
+            message: 'Final Items Count',
+        );
+
+        $indexingEntityArray = $this->filterIndexEntities($indexingEntities, $category->getId(), $apiKey);
+        $indexingEntity = array_shift($indexingEntityArray);
+        $this->assertSame(
+            expected: (int)$category->getId(),
+            actual: $indexingEntity->getTargetId(),
+            message: 'Target Id',
+        );
+        $this->assertSame(
+            expected: 'KLEVU_CATEGORY',
+            actual: $indexingEntity->getTargetEntityType(),
+            message: 'Target Entity Type',
+        );
+        $this->assertSame(
+            expected: $apiKey,
+            actual: $indexingEntity->getApiKey(),
+            message: 'Target Entity Type',
+        );
+        $this->assertSame(
+            expected: Actions::NO_ACTION,
+            actual: $indexingEntity->getNextAction(),
+            message: 'Next Action',
+        );
+        $this->assertNull(
+            actual: $indexingEntity->getLastActionTimestamp(),
+            message: 'Last Action Timestamp',
+        );
+        $this->assertNull(
+            actual: $indexingEntity->getLockTimestamp(),
+            message: 'Lock Timestamp',
+        );
+        $this->assertFalse(
+            condition: $indexingEntity->getIsIndexable(),
+            message: 'Is Indexable',
+        );
+
+        $this->cleanIndexingEntities(apiKey: $apiKey);
+    }
+
+    /**
+     * @magentoDbIsolation disabled
+     * @magentoAppIsolation enabled
+     * @magentoConfigFixture klevu_test_store_1_store klevu_configuration/auth_keys/js_api_key klevu-js-api-key
+     * @magentoConfigFixture klevu_test_store_1_store klevu_configuration/auth_keys/rest_auth_key klevu-rest-auth-key
+     * @magentoConfigFixture klevu_test_store_2_store klevu_configuration/auth_keys/js_api_key klevu-js-api-key
+     * @magentoConfigFixture klevu_test_store_2_store klevu_configuration/auth_keys/rest_auth_key klevu-rest-auth-key
+     * @magentoConfigFixture default/klevu/indexing/exclude_disabled_categories 1
+     */
+    public function testExecute_SetsExistingNonIndexedCategoryToNotIndexable_WhenDisabled_ForMultiStore(): void
+    {
+        $apiKey = 'klevu-js-api-key';
+
+        $this->createWebsite();
+        $websiteFixture = $this->websiteFixturesPool->get('test_website');
+
+        $this->createStore([
+            'code' => 'klevu_test_store_1',
+            'key' => 'test_store_1',
+        ]);
+        $storeFixture = $this->storeFixturesPool->get('test_store_1');
+        $store1 = $storeFixture->get();
+
+        $this->createStore([
+            'code' => 'klevu_test_store_2',
+            'key' => 'test_store_2',
+            'website_id' => $websiteFixture->getId(),
+        ]);
+        $storeFixture = $this->storeFixturesPool->get('test_store_2');
+        $store2 = $storeFixture->get();
+
+        $categoryCollectionCount1 = count($this->getCategories($store1));
+        $categoryCollectionCount2 = count($this->getCategories($store2));
+        $categoryCollectionCount = max($categoryCollectionCount1, $categoryCollectionCount2);
+
+        $this->createCategory(
+            categoryData: [
+                'key' => 'test_category_1',
+                'is_active' => false,
+                'stores' => [
+                    $store1->getId() => [
+                        'is_active' => false,
+                    ],
+                    $store2->getId() => [
+                        'is_active' => false,
+                    ],
+                ],
+            ],
+        );
+        $this->createCategory(
+            categoryData: [
+                'key' => 'test_category_2',
+                'is_active' => false,
+                'stores' => [
+                    $store1->getId() => [
+                        'is_active' => true,
+                    ],
+                    $store2->getId() => [
+                        'is_active' => false,
+                    ],
+                ],
+            ],
+        );
+        $category1 = $this->categoryFixturePool->get('test_category_1');
+        $this->cleanIndexingEntities(apiKey: $apiKey);
+
+        $this->createIndexingEntity(data: [
+            IndexingEntity::API_KEY => $apiKey,
+            IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ID => (int)$category1->getId(),
+            IndexingEntity::IS_INDEXABLE => true,
+            IndexingEntity::NEXT_ACTION => Actions::ADD,
+            IndexingEntity::LAST_ACTION => Actions::NO_ACTION,
+            IndexingEntity::LAST_ACTION_TIMESTAMP => null,
+        ]);
+        $category2 = $this->categoryFixturePool->get('test_category_2');
+        $this->createIndexingEntity(data: [
+            IndexingEntity::API_KEY => $apiKey,
+            IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ID => (int)$category2->getId(),
+            IndexingEntity::IS_INDEXABLE => true,
+            IndexingEntity::NEXT_ACTION => Actions::ADD,
+            IndexingEntity::LAST_ACTION => Actions::UPDATE,
+            IndexingEntity::LAST_ACTION_TIMESTAMP => null,
+        ]);
+
+        $service = $this->instantiateTestObject();
+        $result = $service->execute(entityType: 'KLEVU_CATEGORY', apiKeys: [$apiKey]);
+        $this->assertTrue($result->isSuccess());
+
+        $indexingEntities = $this->getCategoryIndexingEntities($apiKey);
+        $this->assertCount(
+            expectedCount: 2 + $categoryCollectionCount,
+            haystack: $indexingEntities,
+            message: 'Final Items Count',
+        );
+
+        $indexingEntityArray1 = $this->filterIndexEntities($indexingEntities, $category1->getId(), $apiKey);
+        $indexingEntity1 = array_shift($indexingEntityArray1);
+        $this->assertSame(
+            expected: (int)$category1->getId(),
+            actual: $indexingEntity1->getTargetId(),
+            message: 'Target Id',
+        );
+        $this->assertSame(
+            expected: 'KLEVU_CATEGORY',
+            actual: $indexingEntity1->getTargetEntityType(),
+            message: 'Target Entity Type',
+        );
+        $this->assertSame(
+            expected: $apiKey,
+            actual: $indexingEntity1->getApiKey(),
+            message: 'Target Entity Type',
+        );
+        $this->assertSame(
+            expected: Actions::NO_ACTION,
+            actual: $indexingEntity1->getNextAction(),
+            message: 'Next Action',
+        );
+        $this->assertNull(
+            actual: $indexingEntity1->getLastActionTimestamp(),
+            message: 'Last Action Timestamp',
+        );
+        $this->assertNull(
+            actual: $indexingEntity1->getLockTimestamp(),
+            message: 'Lock Timestamp',
+        );
+        $this->assertFalse(
+            condition: $indexingEntity1->getIsIndexable(),
+            message: 'Is Indexable',
+        );
+
+        $indexingEntityArray2 = $this->filterIndexEntities($indexingEntities, $category2->getId(), $apiKey);
+        $indexingEntity2 = array_shift($indexingEntityArray2);
+        $this->assertSame(
+            expected: (int)$category2->getId(),
+            actual: $indexingEntity2->getTargetId(),
+            message: 'Target Id',
+        );
+        $this->assertSame(
+            expected: 'KLEVU_CATEGORY',
+            actual: $indexingEntity2->getTargetEntityType(),
+            message: 'Target Entity Type',
+        );
+        $this->assertSame(
+            expected: $apiKey,
+            actual: $indexingEntity2->getApiKey(),
+            message: 'Target Entity Type',
+        );
+        $this->assertSame(
+            expected: Actions::ADD,
+            actual: $indexingEntity2->getNextAction(),
+            message: 'Next Action',
+        );
+        $this->assertNull(
+            actual: $indexingEntity2->getLastActionTimestamp(),
+            message: 'Last Action Timestamp',
+        );
+        $this->assertNull(
+            actual: $indexingEntity2->getLockTimestamp(),
+            message: 'Lock Timestamp',
+        );
+        $this->assertTrue(
+            condition: $indexingEntity2->getIsIndexable(),
+            message: 'Is Indexable',
+        );
+
+        $this->cleanIndexingEntities(apiKey: $apiKey);
+    }
+
+    /**
+     * @magentoDbIsolation disabled
+     * @magentoAppIsolation enabled
+     * @magentoConfigFixture klevu_test_store_1_store klevu_configuration/auth_keys/js_api_key klevu-js-api-key
+     * @magentoConfigFixture klevu_test_store_1_store klevu_configuration/auth_keys/rest_auth_key klevu-rest-auth-key
+     * @magentoConfigFixture default/klevu/indexing/exclude_disabled_categories 1
+     */
     public function testExecute_SkipsExistingNonIndexableProduct_WhenSetToNotIndexable(): void
     {
         $apiKey = 'klevu-js-api-key';
@@ -566,6 +826,315 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
             message: 'Final Items Count',
         );
         $this->assertDeleteIndexingEntity($indexingEntities, $category, $apiKey, Actions::NO_ACTION, false);
+        $this->cleanIndexingEntities(apiKey: $apiKey);
+    }
+
+    /**
+     * @magentoDbIsolation disabled
+     * @magentoAppIsolation enabled
+     * @magentoConfigFixture klevu_test_store_1_store klevu_configuration/auth_keys/js_api_key klevu-js-api-key
+     * @magentoConfigFixture klevu_test_store_1_store klevu_configuration/auth_keys/rest_auth_key klevu-rest-auth-key
+     * @magentoConfigFixture default/klevu/indexing/exclude_disabled_categories 1
+     */
+    public function testExecute_SetsExistingCategoryToIndexable_WhenEnabled_IfPreviousDeleteActionNotYetIndexed(): void
+    {
+        $apiKey = 'klevu-js-api-key';
+
+        $this->createStore();
+        $storeFixture = $this->storeFixturesPool->get('test_store');
+        $store = $storeFixture->get();
+
+        $categoryCollectionCount = count($this->getCategories($store));
+
+        $this->createCategory(
+            categoryData: [
+                'key' => 'test_category_1',
+                'is_active' => true,
+            ],
+        );
+        $category = $this->categoryFixturePool->get('test_category_1');
+        $this->cleanIndexingEntities(apiKey: $apiKey);
+
+        $this->createIndexingEntity(data: [
+            IndexingEntity::API_KEY => $apiKey,
+            IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ID => (int)$category->getId(),
+            IndexingEntity::IS_INDEXABLE => true,
+            IndexingEntity::NEXT_ACTION => Actions::DELETE,
+            IndexingEntity::LAST_ACTION => Actions::ADD,
+            IndexingEntity::LAST_ACTION_TIMESTAMP => date('Y-m-d H:i:s'),
+        ]);
+
+        $service = $this->instantiateTestObject();
+        $result = $service->execute(entityType: 'KLEVU_CATEGORY', apiKeys: [$apiKey]);
+        $this->assertTrue($result->isSuccess());
+
+        $indexingEntities = $this->getCategoryIndexingEntities($apiKey);
+        $this->assertCount(
+            expectedCount: 1 + $categoryCollectionCount,
+            haystack: $indexingEntities,
+            message: 'Final Items Count',
+        );
+        $indexingEntityArray = $this->filterIndexEntities($indexingEntities, $category->getId(), $apiKey);
+        $indexingEntity = array_shift($indexingEntityArray);
+        $this->assertSame(
+            expected: (int)$category->getId(),
+            actual: $indexingEntity->getTargetId(),
+            message: 'Target Id',
+        );
+        $this->assertSame(
+            expected: 'KLEVU_CATEGORY',
+            actual: $indexingEntity->getTargetEntityType(),
+            message: 'Target Entity Type',
+        );
+        $this->assertSame(
+            expected: $apiKey,
+            actual: $indexingEntity->getApiKey(),
+            message: 'Target Entity Type',
+        );
+        $this->assertSame(
+            expected: Actions::NO_ACTION,
+            actual: $indexingEntity->getNextAction(),
+            message: sprintf(
+                'Next Action: Expected %s, Received %s',
+                Actions::NO_ACTION->value,
+                $indexingEntity->getNextAction()->value,
+            ),
+        );
+        $this->assertNotNull(
+            actual: $indexingEntity->getLastActionTimestamp(),
+            message: 'Last Action Timestamp',
+        );
+        $this->assertNull(
+            actual: $indexingEntity->getLockTimestamp(),
+            message: 'Lock Timestamp',
+        );
+        $this->assertTrue(
+            condition: $indexingEntity->getIsIndexable(),
+            message: 'Is Indexable',
+        );
+
+        $this->cleanIndexingEntities(apiKey: $apiKey);
+    }
+
+    /**
+     * @magentoDbIsolation disabled
+     * @magentoAppIsolation enabled
+     * @magentoConfigFixture klevu_test_store_1_store klevu_configuration/auth_keys/js_api_key klevu-js-api-key
+     * @magentoConfigFixture klevu_test_store_1_store klevu_configuration/auth_keys/rest_auth_key klevu-rest-auth-key
+     * @magentoConfigFixture klevu_test_store_2_store klevu_configuration/auth_keys/js_api_key klevu-js-api-key
+     * @magentoConfigFixture klevu_test_store_2_store klevu_configuration/auth_keys/rest_auth_key klevu-rest-auth-key
+     * @magentoConfigFixture default/klevu/indexing/exclude_disabled_categories 1
+     */
+    public function testExecute_SetsExistingCategoryToIndexable_WhenEnabled_IfPreviousDeleteActionNotYetIndexed_ForMultiStore(): void // phpcs:ignore Generic.Files.LineLength.TooLong
+    {
+        $apiKey = 'klevu-js-api-key';
+
+        $this->createWebsite();
+        $websiteFixture = $this->websiteFixturesPool->get('test_website');
+
+        $this->createStore([
+            'code' => 'klevu_test_store_1',
+            'key' => 'test_store_1',
+        ]);
+        $storeFixture = $this->storeFixturesPool->get('test_store_1');
+        $store1 = $storeFixture->get();
+
+        $this->createStore([
+            'code' => 'klevu_test_store_2',
+            'key' => 'test_store_2',
+            'website_id' => $websiteFixture->getId(),
+        ]);
+        $storeFixture = $this->storeFixturesPool->get('test_store_2');
+        $store2 = $storeFixture->get();
+
+        $categoryCollectionCount1 = count($this->getCategories($store1));
+        $categoryCollectionCount2 = count($this->getCategories($store2));
+        $categoryCollectionCount = max($categoryCollectionCount1, $categoryCollectionCount2);
+
+        $this->createCategory(
+            categoryData: [
+                'key' => 'test_category_1',
+                'is_active' => false,
+                'stores' => [
+                    $store1->getId() => [
+                        'is_active' => false,
+                    ],
+                    $store2->getId() => [
+                        'is_active' => true,
+                    ],
+                ],
+            ],
+        );
+        $category1 = $this->categoryFixturePool->get('test_category_1');
+        $this->createCategory(
+            categoryData: [
+                'key' => 'test_category_2',
+                'is_active' => false,
+                'stores' => [
+                    $store1->getId() => [
+                        'is_active' => true,
+                    ],
+                    $store2->getId() => [
+                        'is_active' => false,
+                    ],
+                ],
+            ],
+        );
+        $category2 = $this->categoryFixturePool->get('test_category_2');
+        $this->createCategory(
+            categoryData: [
+                'key' => 'test_category_3',
+                'is_active' => true,
+            ],
+        );
+        $category3 = $this->categoryFixturePool->get('test_category_3');
+        $this->cleanIndexingEntities(apiKey: $apiKey);
+
+        $this->createIndexingEntity(data: [
+            IndexingEntity::API_KEY => $apiKey,
+            IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ID => (int)$category1->getId(),
+            IndexingEntity::IS_INDEXABLE => false,
+            IndexingEntity::NEXT_ACTION => Actions::NO_ACTION,
+            IndexingEntity::LAST_ACTION => Actions::DELETE,
+            IndexingEntity::LAST_ACTION_TIMESTAMP => date('Y-m-d H:i:s'),
+        ]);
+        $this->createIndexingEntity(data: [
+            IndexingEntity::API_KEY => $apiKey,
+            IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ID => (int)$category2->getId(),
+            IndexingEntity::IS_INDEXABLE => true,
+            IndexingEntity::NEXT_ACTION => Actions::DELETE,
+            IndexingEntity::LAST_ACTION => Actions::UPDATE,
+            IndexingEntity::LAST_ACTION_TIMESTAMP => date('Y-m-d H:i:s'),
+        ]);
+        $this->createIndexingEntity(data: [
+            IndexingEntity::API_KEY => $apiKey,
+            IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ID => (int)$category3->getId(),
+            IndexingEntity::IS_INDEXABLE => true,
+            IndexingEntity::NEXT_ACTION => Actions::NO_ACTION,
+            IndexingEntity::LAST_ACTION => Actions::ADD,
+            IndexingEntity::LAST_ACTION_TIMESTAMP => date('Y-m-d H:i:s'),
+        ]);
+
+        $service = $this->instantiateTestObject();
+        $result = $service->execute(entityType: 'KLEVU_CATEGORY', apiKeys: [$apiKey]);
+        $this->assertTrue($result->isSuccess());
+
+        $indexingEntities = $this->getCategoryIndexingEntities($apiKey);
+        $this->assertCount(
+            expectedCount: 3 + $categoryCollectionCount,
+            haystack: $indexingEntities,
+            message: 'Final Items Count',
+        );
+
+        $indexingEntityArray1 = $this->filterIndexEntities($indexingEntities, $category1->getId(), $apiKey);
+        $indexingEntity1 = array_shift($indexingEntityArray1);
+        $this->assertSame(
+            expected: (int)$category1->getId(),
+            actual: $indexingEntity1->getTargetId(),
+            message: 'Target Id',
+        );
+        $this->assertSame(
+            expected: 'KLEVU_CATEGORY',
+            actual: $indexingEntity1->getTargetEntityType(),
+            message: 'Target Entity Type',
+        );
+        $this->assertSame(
+            expected: $apiKey,
+            actual: $indexingEntity1->getApiKey(),
+            message: 'Target Entity Type',
+        );
+        $this->assertSame(
+            expected: Actions::ADD,
+            actual: $indexingEntity1->getNextAction(),
+            message: 'Next Action',
+        );
+        $this->assertNotNull(
+            actual: $indexingEntity1->getLastActionTimestamp(),
+            message: 'Last Action Timestamp',
+        );
+        $this->assertNull(
+            actual: $indexingEntity1->getLockTimestamp(),
+            message: 'Lock Timestamp',
+        );
+        $this->assertTrue(
+            condition: $indexingEntity1->getIsIndexable(),
+            message: 'Is Indexable',
+        );
+
+        $indexingEntityArray2 = $this->filterIndexEntities($indexingEntities, $category2->getId(), $apiKey);
+        $indexingEntity2 = array_shift($indexingEntityArray2);
+        $this->assertSame(
+            expected: (int)$category2->getId(),
+            actual: $indexingEntity2->getTargetId(),
+            message: 'Target Id',
+        );
+        $this->assertSame(
+            expected: 'KLEVU_CATEGORY',
+            actual: $indexingEntity2->getTargetEntityType(),
+            message: 'Target Entity Type',
+        );
+        $this->assertSame(
+            expected: $apiKey,
+            actual: $indexingEntity2->getApiKey(),
+            message: 'Target Entity Type',
+        );
+        $this->assertSame(
+            expected: Actions::NO_ACTION,
+            actual: $indexingEntity2->getNextAction(),
+            message: 'Next Action',
+        );
+        $this->assertNotNull(
+            actual: $indexingEntity2->getLastActionTimestamp(),
+            message: 'Last Action Timestamp',
+        );
+        $this->assertNull(
+            actual: $indexingEntity2->getLockTimestamp(),
+            message: 'Lock Timestamp',
+        );
+        $this->assertTrue(
+            condition: $indexingEntity2->getIsIndexable(),
+            message: 'Is Indexable',
+        );
+
+        $indexingEntityArray3 = $this->filterIndexEntities($indexingEntities, $category3->getId(), $apiKey);
+        $indexingEntity3 = array_shift($indexingEntityArray3);
+        $this->assertSame(
+            expected: (int)$category3->getId(),
+            actual: $indexingEntity3->getTargetId(),
+            message: 'Target Id',
+        );
+        $this->assertSame(
+            expected: 'KLEVU_CATEGORY',
+            actual: $indexingEntity3->getTargetEntityType(),
+            message: 'Target Entity Type',
+        );
+        $this->assertSame(
+            expected: $apiKey,
+            actual: $indexingEntity3->getApiKey(),
+            message: 'Target Entity Type',
+        );
+        $this->assertSame(
+            expected: Actions::NO_ACTION,
+            actual: $indexingEntity3->getNextAction(),
+            message: 'Next Action',
+        );
+        $this->assertNotNull(
+            actual: $indexingEntity3->getLastActionTimestamp(),
+            message: 'Last Action Timestamp',
+        );
+        $this->assertNull(
+            actual: $indexingEntity3->getLockTimestamp(),
+            message: 'Lock Timestamp',
+        );
+        $this->assertTrue(
+            condition: $indexingEntity3->getIsIndexable(),
+            message: 'Is Indexable',
+        );
+
         $this->cleanIndexingEntities(apiKey: $apiKey);
     }
 

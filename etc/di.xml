@@ -22,7 +22,7 @@
     <virtualType name="Klevu\IndexingCategories\Service\Provider\SyncEnabledProvider"
                  type="Klevu\Configuration\Service\Provider\ScopeConfigProvider">
         <arguments>
-            <argument name="path" xsi:type="string">klevu/indexing/enable_category_sync</argument>
+            <argument name="path" xsi:type="const">Klevu\IndexingCategories\Constants::XML_PATH_CATEGORY_SYNC_ENABLED</argument>
             <argument name="returnType"
                       xsi:type="const">Klevu\Configuration\Service\Provider\ScopeConfigProvider::TYPE_BOOLEAN</argument>
         </arguments>
@@ -455,7 +455,7 @@
             <argument name="entityIndexingRecordProvider"
                       xsi:type="object">Klevu\IndexingCategories\Service\Provider\Sync\EntityIndexingRecordProvider\Add</argument>
             <argument name="pipelineConfigurationFilepath"
-                      xsi:type="string">Klevu_IndexingCategories::etc/pipeline/add.yml</argument>
+                      xsi:type="string">Klevu_IndexingCategories::etc/pipeline/add_update.yml</argument>
         </arguments>
     </virtualType>
 
@@ -475,7 +475,7 @@
             <argument name="entityIndexingRecordProvider"
                       xsi:type="object">Klevu\IndexingCategories\Service\Provider\Sync\EntityIndexingRecordProvider\Update</argument>
             <argument name="pipelineConfigurationFilepath"
-                      xsi:type="string">Klevu_IndexingCategories::etc/pipeline/update.yml</argument>
+                      xsi:type="string">Klevu_IndexingCategories::etc/pipeline/add_update.yml</argument>
         </arguments>
     </virtualType>
 
@@ -494,4 +494,26 @@
         </arguments>
     </type>
 
+    <type name="Klevu\IndexingCategories\Observer\Admin\System\Config\UpdateCategorySyncSettingsObserver">
+        <arguments>
+            <argument name="createCronScheduleAction"
+                      xsi:type="object">Klevu\Indexing\Service\Action\Cron\CreateCronScheduleForEntityDiscoveryAction</argument>
+        </arguments>
+    </type>
+
+    <type name="Klevu\Indexing\Service\Provider\ConflictingAttributeNamesProvider">
+        <arguments>
+            <argument name="attributeMappers" xsi:type="array">
+                <item name="KLEVU_CATEGORY" xsi:type="object">Klevu\IndexingCategories\Service\Mapper\MagentoToKlevuAttributeMapper</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Klevu\Indexing\Service\Provider\DuplicateAttributeMappingProvider">
+        <arguments>
+            <argument name="attributeMappers" xsi:type="array">
+                <item name="KLEVU_CATEGORY" xsi:type="object">Klevu\IndexingCategories\Service\Mapper\MagentoToKlevuAttributeMapper</item>
+            </argument>
+        </arguments>
+    </type>
 </config>

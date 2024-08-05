@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace Klevu\IndexingCategories\Test\Integration\Service;
 
 use Klevu\Indexing\Exception\InvalidIndexingRecordDataTypeException;
+use Klevu\IndexingApi\Model\Source\Actions;
 use Klevu\IndexingApi\Service\EntityIndexingRecordCreatorServiceInterface;
 use Klevu\IndexingCategories\Service\EntityIndexingRecordCreatorService;
 use Klevu\TestFixtures\Catalog\CategoryTrait;
@@ -78,6 +79,7 @@ class EntityIndexingRecordCreatorServiceTest extends TestCase
         $service = $this->instantiateTestObject();
         $service->execute(
             recordId: 1,
+            action: Actions::ADD,
             entity: $page,
         );
     }
@@ -104,6 +106,7 @@ class EntityIndexingRecordCreatorServiceTest extends TestCase
         $service = $this->instantiateTestObject();
         $service->execute(
             recordId: 1,
+            action: Actions::DELETE,
             entity: $category,
             parent: $page,
         );
@@ -118,6 +121,7 @@ class EntityIndexingRecordCreatorServiceTest extends TestCase
         $service = $this->instantiateTestObject();
         $result = $service->execute(
             recordId: 1,
+            action: Actions::UPDATE,
             entity: $category,
         );
 
@@ -126,6 +130,10 @@ class EntityIndexingRecordCreatorServiceTest extends TestCase
             actual: (int)$result->getEntity()->getId(),
         );
         $this->assertNull(actual: $result->getParent());
+        $this->assertSame(
+            expected: Actions::UPDATE->value,
+            actual: $result->getAction(),
+        );
     }
 
     public function testExecute_ReturnsIndexingRecord_WithAllData(): void
@@ -145,6 +153,7 @@ class EntityIndexingRecordCreatorServiceTest extends TestCase
         $service = $this->instantiateTestObject();
         $result = $service->execute(
             recordId: 1,
+            action: Actions::NO_ACTION,
             entity: $category,
             parent: $topCategory,
 
@@ -156,6 +165,10 @@ class EntityIndexingRecordCreatorServiceTest extends TestCase
         );
         $this->assertNull(
             actual: $result->getParent(),
+        );
+        $this->assertSame(
+            expected: Actions::NO_ACTION->value,
+            actual: $result->getAction(),
         );
     }
 }

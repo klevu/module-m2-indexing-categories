@@ -29,10 +29,10 @@ stages:
                   contextKey: "currentCategory"
           registerActionToContext:
             stages:
-              createAction:
-                pipeline: Stage\StaticValue
+              extractAction:
+                pipeline:  Stage\Extract
                 args:
-                  value: "Add"
+                  extraction: currentIndexingRecord::getAction()
               registerAction:
                 pipeline: Stage\RegisterContext
                 args:
@@ -61,10 +61,9 @@ stages:
       processCategory:
         stages:
           createRecord:
-            import: transform-category.yml
+            import: Klevu_IndexingCategories::etc/pipeline/category/default.yml
   processPayload:
-    #        import: Klevu_Indexing::etc/pipeline/process-batch-payload.yml
-    import: ../../../module-m2-indexing/etc/pipeline/process-batch-payload.yml
+    import: Klevu_Indexing::etc/pipeline/process-batch-payload.yml
   logEnd:
     pipeline: Indexing\Stage\Log
     args:

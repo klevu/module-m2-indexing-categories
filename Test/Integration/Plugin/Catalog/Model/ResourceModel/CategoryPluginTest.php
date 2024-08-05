@@ -261,11 +261,12 @@ class CategoryPluginTest extends TestCase
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
             IndexingEntity::TARGET_ID => $category->getId(),
             IndexingEntity::API_KEY => $apiKey,
+            IndexingEntity::LAST_ACTION => Actions::ADD,
             IndexingEntity::NEXT_ACTION => Actions::DELETE,
             IndexingEntity::IS_INDEXABLE => true,
         ]);
 
-        $category->setTitle('Page Test: New Title');
+        $category->setIsActive(true);
         $categoryResourceModel = $this->objectManager->get(CategoryResourceModel::class);
         $categoryResourceModel->save($category);
 
