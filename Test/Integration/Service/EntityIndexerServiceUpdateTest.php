@@ -273,6 +273,7 @@ class EntityIndexerServiceUpdateTest extends TestCase
             'url_key' => 'test-category-url',
             'description' => 'Test Category Description',
             'parent' => $topCategoryFixture,
+            'image' => 'klevu_test_image_name.jpg',
         ]);
         $categoryFixture = $this->categoryFixturePool->get('test_category');
 
@@ -352,6 +353,16 @@ class EntityIndexerServiceUpdateTest extends TestCase
 
         $this->assertArrayHasKey(key: 'categoryPath', array: $attributes);
         $this->assertStringContainsString(needle: 'Top Category/Test Category', haystack: $attributes['categoryPath']);
+
+        $this->assertArrayHasKey(key: 'image', array: $attributes);
+        $this->assertArrayHasKey(key: 'default', array: $attributes['image']);
+        $image = $attributes['image']['default'];
+        $this->assertArrayHasKey(key: 'url', array: $image);
+        $this->assertMatchesRegularExpression(
+            pattern: '#/media/catalog/category/klevu_test_image_name(_\d*)?\.jpg#',
+            string: $image['url'],
+            message: 'Image URL: ' . $image['url'],
+        );
 
         $this->cleanIndexingEntities(apiKey: $apiKey);
     }

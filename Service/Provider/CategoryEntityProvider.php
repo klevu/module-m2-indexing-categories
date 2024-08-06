@@ -21,6 +21,8 @@ use Psr\Log\LoggerInterface;
 
 class CategoryEntityProvider implements EntityProviderInterface
 {
+    public const ENTITY_SUBTYPE_CATEGORY = 'category';
+
     /**
      * @var CategoryCollectionFactory
      */
@@ -37,23 +39,30 @@ class CategoryEntityProvider implements EntityProviderInterface
      * @var GroupRepositoryInterface
      */
     private readonly GroupRepositoryInterface $groupRepository;
+    /**
+     * @var string
+     */
+    private readonly string $entitySubtype;
 
     /**
      * @param CategoryCollectionFactory $categoryCollectionFactory
      * @param ScopeConfigProviderInterface $syncEnabledProvider
      * @param LoggerInterface $logger
      * @param GroupRepositoryInterface $groupRepository
+     * @param string $entitySubtype
      */
     public function __construct(
         CategoryCollectionFactory $categoryCollectionFactory,
         ScopeConfigProviderInterface $syncEnabledProvider,
         LoggerInterface $logger,
         GroupRepositoryInterface $groupRepository,
+        string $entitySubtype = self::ENTITY_SUBTYPE_CATEGORY,
     ) {
         $this->categoryCollectionFactory = $categoryCollectionFactory;
         $this->syncEnabledProvider = $syncEnabledProvider;
         $this->logger = $logger;
         $this->groupRepository = $groupRepository;
+        $this->entitySubtype = $entitySubtype;
     }
 
     /**
@@ -72,6 +81,14 @@ class CategoryEntityProvider implements EntityProviderInterface
         foreach ($categoryCollection as $category) {
             yield $category;
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function getEntitySubtype(): string
+    {
+        return $this->entitySubtype;
     }
 
     /**
