@@ -108,7 +108,7 @@ class CategoryPathProviderTest extends TestCase
         );
 
         $this->assertSame(
-            expected: 'Top Category/Test Category/Bottom Category',
+            expected: 'Top Category;Test Category;Bottom Category',
             actual: $result,
         );
     }
@@ -145,7 +145,7 @@ class CategoryPathProviderTest extends TestCase
         );
 
         $this->assertSame(
-            expected: 'Test Category/Bottom Category',
+            expected: 'Test Category;Bottom Category',
             actual: $result,
         );
     }
@@ -182,7 +182,7 @@ class CategoryPathProviderTest extends TestCase
         );
 
         $this->assertSame(
-            expected: 'Top Category/Test Category/Bottom Category',
+            expected: 'Top Category;Test Category;Bottom Category',
             actual: $result,
         );
     }
@@ -237,7 +237,7 @@ class CategoryPathProviderTest extends TestCase
         );
 
         $this->assertSame(
-            expected: 'Top Category/Middle Category/Bottom Category',
+            expected: 'Top Category;Middle Category;Bottom Category',
             actual: $result,
         );
     }

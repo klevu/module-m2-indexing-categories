@@ -1,0 +1,7 @@
+stages:
+  getCreatedAt:
+    pipeline: Stage\Extract
+    args:
+      extraction: currentCategory::getCreatedAt()
+      transformations:
+        - ToDateString("Y-m-d\TH:i:s.v\Z")

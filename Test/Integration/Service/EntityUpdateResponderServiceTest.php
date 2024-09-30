@@ -80,6 +80,7 @@ class EntityUpdateResponderServiceTest extends TestCase
             EntityUpdate::STORE_IDS => [1, 2],
             EntityUpdate::CUSTOMER_GROUP_IDS => [10, 11],
             EntityUpdate::ATTRIBUTES => ['product_ids'],
+            EntityUpdate::ENTITY_SUBTYPES => [],
         ];
 
         $entityUpdateFactory = $this->objectManager->get(EntityUpdateInterfaceFactory::class);
@@ -106,6 +107,7 @@ class EntityUpdateResponderServiceTest extends TestCase
             EntityUpdate::STORE_IDS => [1, 2],
             EntityUpdate::CUSTOMER_GROUP_IDS => [10, 11],
             EntityUpdateResponderServiceInterface::CHANGED_ATTRIBUTES => ['product_ids'],
+            EntityUpdate::ENTITY_SUBTYPES => [],
         ];
 
         $service = $this->instantiateTestObject([
@@ -128,6 +130,7 @@ class EntityUpdateResponderServiceTest extends TestCase
                     EntityUpdate::STORE_IDS => [],
                     EntityUpdate::CUSTOMER_GROUP_IDS => [],
                     EntityUpdate::ATTRIBUTES => [],
+                    EntityUpdate::ENTITY_SUBTYPES => [],
                 ],
                 $data,
             ),

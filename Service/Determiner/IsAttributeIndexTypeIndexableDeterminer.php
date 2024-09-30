@@ -19,7 +19,7 @@ use Magento\Store\Api\Data\StoreInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
-class AttributeIsIndexableDeterminer implements IsAttributeIndexableDeterminerInterface
+class IsAttributeIndexTypeIndexableDeterminer implements IsAttributeIndexableDeterminerInterface
 {
     /**
      * @var LoggerInterface
@@ -89,7 +89,7 @@ class AttributeIsIndexableDeterminer implements IsAttributeIndexableDeterminerIn
                     'method' => __METHOD__,
                 ],
             );
-            
+
             return false;
         }
 

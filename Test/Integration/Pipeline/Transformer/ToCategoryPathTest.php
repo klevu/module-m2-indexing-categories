@@ -6,10 +6,10 @@
 
 declare(strict_types=1);
 
-namespace Klevu\IndexingCategories\Test\Integration\Transformer;
+namespace Klevu\IndexingCategories\Test\Integration\Pipeline\Transformer;
 
 use Klevu\Configuration\Service\Provider\ScopeProviderInterface;
-use Klevu\IndexingCategories\Transformer\ToCategoryPath;
+use Klevu\IndexingCategories\Pipeline\Transformer\ToCategoryPath;
 use Klevu\Pipelines\Exception\Transformation\InvalidInputDataException;
 use Klevu\Pipelines\Transformer\TransformerInterface;
 use Klevu\TestFixtures\Catalog\CategoryTrait;
@@ -129,7 +129,7 @@ class ToCategoryPathTest extends TestCase
         );
 
         $this->assertSame(
-            expected: 'Top Category/Test Category/Bottom Category',
+            expected: 'Top Category;Test Category;Bottom Category',
             actual: $result,
         );
     }

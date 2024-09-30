@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+
+<!-- Copyright © Klevu Oy. All rights reserved. See LICENSE.txt for license details. -->
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <virtualType name="Klevu\IndexingCategories\ViewModel\Config\Information\PipelineConfiguration\Category\Add"
+                 type="Klevu\PlatformPipelines\ViewModel\Config\Information\PipelineConfiguration">
+        <arguments>
+            <argument name="pipelineIdentifier" xsi:type="string">KLEVU_CATEGORY::add</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\ViewModel\Config\Information\PipelineConfiguration\Category\Delete"
+                 type="Klevu\PlatformPipelines\ViewModel\Config\Information\PipelineConfiguration">
+        <arguments>
+            <argument name="pipelineIdentifier" xsi:type="string">KLEVU_CATEGORY::delete</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\ViewModel\Config\Information\PipelineConfiguration\Category\Update"
+                 type="Klevu\PlatformPipelines\ViewModel\Config\Information\PipelineConfiguration">
+        <arguments>
+            <argument name="pipelineIdentifier" xsi:type="string">KLEVU_CATEGORY::update</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\Block\Adminhtml\Config\Information\PipelineConfiguration\Category\Add"
+                 type="Klevu\Configuration\Block\Adminhtml\Config\Form\KlevuFieldset">
+        <arguments>
+            <argument name="blockName" xsi:type="string">klevu_indexing_pipeline_configuration_category_add</argument>
+            <argument name="template"
+                      xsi:type="string">Klevu_PlatformPipelines::system/config/information/pipeline_configuration.phtml</argument>
+            <argument name="viewModel"
+                      xsi:type="object">Klevu\IndexingCategories\ViewModel\Config\Information\PipelineConfiguration\Category\Add</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\Block\Adminhtml\Config\Information\PipelineConfiguration\Category\Delete"
+                 type="Klevu\Configuration\Block\Adminhtml\Config\Form\KlevuFieldset">
+        <arguments>
+            <argument name="blockName" xsi:type="string">klevu_indexing_pipeline_configuration_category_delete</argument>
+            <argument name="template"
+                      xsi:type="string">Klevu_PlatformPipelines::system/config/information/pipeline_configuration.phtml</argument>
+            <argument name="viewModel"
+                      xsi:type="object">Klevu\IndexingCategories\ViewModel\Config\Information\PipelineConfiguration\Category\Delete</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\Block\Adminhtml\Config\Information\PipelineConfiguration\Category\Update"
+                 type="Klevu\Configuration\Block\Adminhtml\Config\Form\KlevuFieldset">
+        <arguments>
+            <argument name="blockName" xsi:type="string">klevu_indexing_pipeline_configuration_category_update</argument>
+            <argument name="template"
+                      xsi:type="string">Klevu_PlatformPipelines::system/config/information/pipeline_configuration.phtml</argument>
+            <argument name="viewModel"
+                      xsi:type="object">Klevu\IndexingCategories\ViewModel\Config\Information\PipelineConfiguration\Category\Update</argument>
+        </arguments>
+    </virtualType>
+</config>

@@ -24,3 +24,5 @@ stages:
         import: Klevu_IndexingCategories::etc/pipeline/category/attributes/category_path.yml
       image:
         import: Klevu_IndexingCategories::etc/pipeline/category/attributes/image.yml
+      createdAt:
+        import: Klevu_IndexingCategories::etc/pipeline/category/attributes/created_at.yml

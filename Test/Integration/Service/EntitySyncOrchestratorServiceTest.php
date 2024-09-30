@@ -33,6 +33,11 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use TddWizard\Fixtures\Catalog\CategoryFixturePool;
 
+/**
+ * @covers EntitySyncOrchestratorService
+ * @method EntitySyncOrchestratorServiceInterface instantiateTestObject(?array $arguments = null)
+ * @method EntitySyncOrchestratorServiceInterface instantiateTestObjectFromInterface(?array $arguments = null)
+ */
 class EntitySyncOrchestratorServiceTest extends TestCase
 {
     use CategoryTrait;
@@ -128,8 +133,8 @@ class EntitySyncOrchestratorServiceTest extends TestCase
                 'Method: {method}, Warning: {message}',
                 [
                     'method' => 'Klevu\Indexing\Service\EntitySyncOrchestratorService::getCredentialsArray',
-                    'message' => 'No Account found for provided API Key. '
-                        . 'Check the JS API Key (incorrect-key) provided.',
+                    'message' => 'No Account found for provided API Keys. '
+                        . 'Check the JS API Keys (incorrect-key) provided.',
                 ],
             );
 
@@ -137,7 +142,7 @@ class EntitySyncOrchestratorServiceTest extends TestCase
             'logger' => $mockLogger,
             'entityIndexerServices' => [],
         ]);
-        $service->execute(apiKey: 'incorrect-key');
+        $service->execute(apiKeys: ['incorrect-key']);
 
         $this->cleanIndexingEntities(apiKey: $apiKey);
     }
@@ -189,8 +194,8 @@ class EntitySyncOrchestratorServiceTest extends TestCase
 
         $service = $this->instantiateTestObject();
         $result = $service->execute(
-            entityType: 'KLEVU_CATEGORY',
-            apiKey: $apiKey,
+            entityTypes: ['KLEVU_CATEGORY'],
+            apiKeys: [$apiKey],
             via: 'CLI::klevu:indexing:entity-sync',
         );
 
@@ -262,7 +267,7 @@ class EntitySyncOrchestratorServiceTest extends TestCase
         $this->assertStringContainsString(needle: '/test-category-url', haystack: $attributes['url']);
 
         $this->assertArrayHasKey(key: 'categoryPath', array: $attributes);
-        $this->assertStringContainsString(needle: 'Top Category/Test Category', haystack: $attributes['categoryPath']);
+        $this->assertStringContainsString(needle: 'Top Category;Test Category', haystack: $attributes['categoryPath']);
 
         $this->assertArrayHasKey(key: 'image', array: $attributes);
         $this->assertArrayHasKey(key: 'default', array: $attributes['image']);
@@ -273,7 +278,7 @@ class EntitySyncOrchestratorServiceTest extends TestCase
             string: $image['url'],
             message: 'Image URL: ' . $image['url'],
         );
-        
+
         $updatedIndexingEntity = $this->getIndexingEntityForEntity(
             apiKey: $apiKey,
             entity: $categoryFixture->getCategory(),
@@ -334,8 +339,8 @@ class EntitySyncOrchestratorServiceTest extends TestCase
 
         $service = $this->instantiateTestObject();
         $result = $service->execute(
-            entityType: 'KLEVU_CATEGORY',
-            apiKey: $apiKey,
+            entityTypes: ['KLEVU_CATEGORY'],
+            apiKeys: [$apiKey],
             via: 'CLI::klevu:indexing:entity-sync',
         );
 
@@ -407,7 +412,7 @@ class EntitySyncOrchestratorServiceTest extends TestCase
         $this->assertStringContainsString(needle: '/test-category-url', haystack: $attributes['url']);
 
         $this->assertArrayHasKey(key: 'categoryPath', array: $attributes);
-        $this->assertStringContainsString(needle: 'Top Category/Test Category', haystack: $attributes['categoryPath']);
+        $this->assertStringContainsString(needle: 'Top Category;Test Category', haystack: $attributes['categoryPath']);
 
         $this->assertArrayHasKey(key: 'image', array: $attributes);
         $this->assertArrayHasKey(key: 'default', array: $attributes['image']);
@@ -478,8 +483,8 @@ class EntitySyncOrchestratorServiceTest extends TestCase
 
         $service = $this->instantiateTestObject();
         $result = $service->execute(
-            entityType: 'KLEVU_CATEGORY',
-            apiKey: $apiKey,
+            entityTypes: ['KLEVU_CATEGORY'],
+            apiKeys: [$apiKey],
             via: 'CLI::klevu:indexing:entity-sync',
         );
 

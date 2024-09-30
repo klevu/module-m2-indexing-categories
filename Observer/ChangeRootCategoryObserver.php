@@ -44,7 +44,7 @@ class ChangeRootCategoryObserver implements ObserverInterface
         if (!$this->hasRootCategoryChanged($group)) {
             return;
         }
-        $this->discoveryOrchestratorService->execute(entityType: 'KLEVU_CATEGORY');
+        $this->discoveryOrchestratorService->execute(entityTypes: ['KLEVU_CATEGORY']);
     }
 
     /**

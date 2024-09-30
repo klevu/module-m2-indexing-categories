@@ -18,6 +18,8 @@ use Magento\Store\Model\StoreManagerInterface;
 
 class CategoryPathProvider implements CategoryPathProviderInterface
 {
+    public const CATEGORY_PATH_SEPARATOR = ';';
+
     /**
      * @var CategoryRepositoryInterface
      */
@@ -69,14 +71,14 @@ class CategoryPathProvider implements CategoryPathProviderInterface
     ): string {
         if (null === $excludeCategoryIds) {
             $categoryPath = $category->getPath();
-            $categoryPath = explode('/', $categoryPath);
+            $categoryPath = explode(static::CATEGORY_PATH_SEPARATOR, $categoryPath);
             $excludeCategoryIds = array_slice($categoryPath, 0, 2);
         }
         if (in_array((int)$category->getId(), $excludeCategoryIds, true)) {
             return $curPath;
         }
         if ($curPath) {
-            $curPath = '/' . $curPath;
+            $curPath = static::CATEGORY_PATH_SEPARATOR . $curPath;
         }
         $curPath = $category->getName() . $curPath;
 

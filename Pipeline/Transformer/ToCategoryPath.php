@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 
-namespace Klevu\IndexingCategories\Transformer;
+namespace Klevu\IndexingCategories\Pipeline\Transformer;
 
 use Klevu\IndexingCategories\Service\Provider\CategoryPathProviderInterface;
 use Klevu\Pipelines\Exception\Transformation\InvalidInputDataException;

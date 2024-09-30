@@ -134,7 +134,6 @@ class AttributeSyncOrchestratorServiceTest extends TestCase
             value: $tiersApiUrl,
             storeCode: $storeFixture->getCode(),
         );
-        $scopeProvider->unsetCurrentScope();
 
         $this->createAttribute([
             'key' => 'test_attribute_1',
@@ -142,6 +141,7 @@ class AttributeSyncOrchestratorServiceTest extends TestCase
             'code' => 'klevu_test_category_attribute_1',
             'index_as' => IndexType::INDEX,
             'aspect' => Aspect::ATTRIBUTES,
+            'trigger_real_api' => true,
         ]);
         $attributeFixture = $this->attributeFixturePool->get('test_attribute_1');
 
@@ -158,8 +158,8 @@ class AttributeSyncOrchestratorServiceTest extends TestCase
 
         $service = $this->instantiateTestObject();
         $responses = $service->execute(
-            attributeType: 'KLEVU_CATEGORY',
-            apiKey: $jsApiKey,
+            attributeTypes: ['KLEVU_CATEGORY'],
+            apiKeys: [$jsApiKey],
         );
 
         $this->assertCount(expectedCount: 1, haystack: $responses);
