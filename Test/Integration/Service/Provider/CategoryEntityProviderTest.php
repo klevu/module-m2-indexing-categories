@@ -10,6 +10,7 @@ namespace Klevu\IndexingCategories\Test\Integration\Service\Provider;
 
 use Klevu\Configuration\Service\Provider\ScopeProviderInterface;
 use Klevu\IndexingApi\Service\Provider\EntityProviderInterface;
+use Klevu\IndexingCategories\Constants;
 use Klevu\IndexingCategories\Service\Provider\CategoryEntityProvider;
 use Klevu\TestFixtures\Catalog\CategoryTrait;
 use Klevu\TestFixtures\Store\StoreFixturesPool;
@@ -325,7 +326,7 @@ class CategoryEntityProviderTest extends TestCase
         $scopeProvider->setCurrentScope($storeFixture->get());
 
         ConfigFixture::setForStore(
-            path: 'klevu/indexing/enable_category_sync',
+            path: Constants::XML_PATH_CATEGORY_SYNC_ENABLED,
             value: 0,
             storeCode: $storeFixture->getCode(),
         );

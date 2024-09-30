@@ -98,6 +98,7 @@ class CategoryAttributeProviderTest extends TestCase
         $provider = $this->instantiateTestObject();
         $searchResults = $provider->get();
 
+        /** @var AttributeInterface[] $items */
         $items = [];
         foreach ($searchResults as $searchResult) {
             $items[] = $searchResult;

@@ -125,8 +125,8 @@ class SyncEntitiesCommandTest extends TestCase
         );
         $isFailure = $tester->execute(
             input: [
-                '--entity-type' => 'KLEVU_CATEGORY',
-                '--api-key' => $apiKey,
+                '--entity-types' => 'KLEVU_CATEGORY',
+                '--api-keys' => $apiKey,
             ],
             options: [
                 'verbosity' => OutputInterface::VERBOSITY_DEBUG,
@@ -137,7 +137,7 @@ class SyncEntitiesCommandTest extends TestCase
 
         $display = $tester->getDisplay();
         $this->assertStringContainsString(
-            needle: sprintf('Begin Entity Sync with filters: Entity Type = KLEVU_CATEGORY, API Key = %s', $apiKey),
+            needle: sprintf('Begin Entity Sync with filters: Entity Types = KLEVU_CATEGORY, API Keys = %s', $apiKey),
             haystack: $display,
         );
         $this->assertStringContainsString(
@@ -264,8 +264,8 @@ class SyncEntitiesCommandTest extends TestCase
         );
         $isFailure = $tester->execute(
             input: [
-                '--entity-type' => 'KLEVU_CATEGORY',
-                '--api-key' => $apiKey,
+                '--entity-types' => 'KLEVU_CATEGORY',
+                '--api-keys' => $apiKey,
             ],
             options: [
                 'verbosity' => OutputInterface::VERBOSITY_DEBUG,
@@ -276,7 +276,7 @@ class SyncEntitiesCommandTest extends TestCase
 
         $display = $tester->getDisplay();
         $this->assertStringContainsString(
-            needle: sprintf('Begin Entity Sync with filters: Entity Type = KLEVU_CATEGORY, API Key = %s', $apiKey),
+            needle: sprintf('Begin Entity Sync with filters: Entity Types = KLEVU_CATEGORY, API Keys = %s', $apiKey),
             haystack: $display,
         );
         $this->assertStringContainsString(
@@ -403,8 +403,8 @@ class SyncEntitiesCommandTest extends TestCase
         );
         $isFailure = $tester->execute(
             input: [
-                '--entity-type' => 'KLEVU_CATEGORY',
-                '--api-key' => $apiKey,
+                '--entity-types' => 'KLEVU_CATEGORY',
+                '--api-keys' => $apiKey,
             ],
             options: [
                 'verbosity' => OutputInterface::VERBOSITY_DEBUG,
@@ -416,7 +416,7 @@ class SyncEntitiesCommandTest extends TestCase
         $display = $tester->getDisplay();
 
         $this->assertStringContainsString(
-            needle: sprintf('Begin Entity Sync with filters: Entity Type = KLEVU_CATEGORY, API Key = %s', $apiKey),
+            needle: sprintf('Begin Entity Sync with filters: Entity Types = KLEVU_CATEGORY, API Keys = %s', $apiKey),
             haystack: $display,
         );
         $this->assertStringContainsString(

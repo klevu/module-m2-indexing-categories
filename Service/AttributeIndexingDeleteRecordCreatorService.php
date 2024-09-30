@@ -40,26 +40,31 @@ class AttributeIndexingDeleteRecordCreatorService implements AttributeIndexingDe
 
     /**
      * @param string $attributeCode
+     * @param string $apiKey
      *
      * @return SdkAttributeInterface
      * @throws AttributeMappingMissingException
      */
-    public function execute(string $attributeCode): SdkAttributeInterface
+    public function execute(string $attributeCode, string $apiKey): SdkAttributeInterface
     {
         return $this->attributeFactory->create(data: [
-            'attributeName' => $this->getAttributeName($attributeCode),
+            'attributeName' => $this->getAttributeName(attributeCode: $attributeCode, apiKey: $apiKey),
             'datatype' => DataType::STRING->value, // required field, but delete doesn't use it so just set to string
         ]);
     }
 
     /**
      * @param string $attributeCode
+     * @param string $apiKey
      *
      * @return string
      * @throws AttributeMappingMissingException
      */
-    private function getAttributeName(string $attributeCode): string
+    private function getAttributeName(string $attributeCode, string $apiKey): string
     {
-        return $this->attributeMapperService->getByCode($attributeCode);
+        return $this->attributeMapperService->getByCode(
+            attributeCode: $attributeCode,
+            apiKey: $apiKey,
+        );
     }
 }

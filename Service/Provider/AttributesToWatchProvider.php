@@ -146,12 +146,10 @@ class AttributesToWatchProvider implements AttributesToWatchProviderInterface
     {
         /** @var SearchCriteriaBuilder $searchCriteriaBuilder */
         $searchCriteriaBuilder = $this->searchCriteriaBuilderFactory->create();
-        /** @var FilterBuilder $filterBuilder */
-        $filterBuilder = $this->filterBuilderFactory->create();
         /** @var FilterGroupBuilder $filterGroupBuilder */
         $filterGroupBuilder = $this->filterGroupBuilderFactory->create();
         $filterGroupBuilder->addFilter(
-            filter: $this->getFilterForIndexableCustomAttributes(filterBuilder: $filterBuilder),
+            filter: $this->getFilterForIndexableCustomAttributesAspects(),
         );
         /** @var FilterGroup $filterGroup */
         $filterGroup = $filterGroupBuilder->create();
@@ -161,12 +159,12 @@ class AttributesToWatchProvider implements AttributesToWatchProviderInterface
     }
 
     /**
-     * @param FilterBuilder $filterBuilder
-     *
      * @return Filter
      */
-    private function getFilterForIndexableCustomAttributes(FilterBuilder $filterBuilder): Filter
+    private function getFilterForIndexableCustomAttributesAspects(): Filter
     {
+        /** @var FilterBuilder $filterBuilder */
+        $filterBuilder = $this->filterBuilderFactory->create();
         $filterBuilder->setField(field: MagentoAttributeInterface::ATTRIBUTE_PROPERTY_ASPECT_MAPPING);
         $filterBuilder->setValue(value: (string)Aspect::NONE->value);
         $filterBuilder->setConditionType(conditionType: 'neq');

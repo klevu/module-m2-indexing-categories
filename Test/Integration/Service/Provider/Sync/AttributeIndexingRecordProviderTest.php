@@ -271,7 +271,7 @@ class AttributeIndexingRecordProviderTest extends TestCase
         $mockLogger->expects($this->once())
             ->method('error')
             ->with(
-                'Method: {method}, Error: {message}',
+                'Method: {method}, Error: {message}, Attribute: {attribute_code}',
                 [
                     // phpcs:ignore Generic.Files.LineLength.TooLong
                     'method' => 'Klevu\Indexing\Service\Provider\Sync\AttributeIndexingRecordProvider::syncAttributes',
@@ -285,6 +285,7 @@ class AttributeIndexingRecordProviderTest extends TestCase
                         'klevu_attribute_1',
                         'klevu_attribute_2',
                     ),
+                    'attribute_code' => 'klevu_attribute_2',
                 ],
             );
 

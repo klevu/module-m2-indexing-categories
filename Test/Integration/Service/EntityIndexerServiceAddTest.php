@@ -15,6 +15,7 @@ use Klevu\Indexing\Test\Integration\Traits\IndexingEntitiesTrait;
 use Klevu\IndexingApi\Model\Source\Actions;
 use Klevu\IndexingApi\Model\Source\IndexerResultStatuses;
 use Klevu\IndexingApi\Service\EntityIndexerServiceInterface;
+use Klevu\IndexingCategories\Constants;
 use Klevu\IndexingCategories\Service\EntityIndexerService\Add as EntityIndexerServiceVirtualType;
 use Klevu\PhpSDK\Model\Indexing\RecordIterator;
 use Klevu\PhpSDKPipelines\Model\ApiPipelineResult;
@@ -206,7 +207,7 @@ class EntityIndexerServiceAddTest extends TestCase
         );
 
         ConfigFixture::setForStore(
-            path: 'klevu/indexing/enable_category_sync',
+            path: Constants::XML_PATH_CATEGORY_SYNC_ENABLED,
             value: 0,
             storeCode: $storeFixture->getCode(),
         );
@@ -358,7 +359,7 @@ class EntityIndexerServiceAddTest extends TestCase
         $this->assertStringContainsString(needle: '/test-category-url', haystack: $attributes['url']);
 
         $this->assertArrayHasKey(key: 'categoryPath', array: $attributes);
-        $this->assertStringContainsString(needle: 'Top Category/Test Category', haystack: $attributes['categoryPath']);
+        $this->assertStringContainsString(needle: 'Top Category;Test Category', haystack: $attributes['categoryPath']);
 
         $this->assertArrayHasKey(key: 'image', array: $attributes);
         $this->assertArrayHasKey(key: 'default', array: $attributes['image']);

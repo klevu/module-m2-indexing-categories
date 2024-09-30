@@ -10,9 +10,9 @@ namespace Klevu\IndexingCategories\Service\Provider;
 
 use Klevu\Configuration\Service\Provider\ScopeConfigProviderInterface;
 use Klevu\IndexingApi\Service\Provider\EntityProviderInterface;
+use Klevu\IndexingCategories\Model\ResourceModel\Category\Collection as CategoryCollection;
+use Klevu\IndexingCategories\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 use Magento\Catalog\Model\Category;
-use Magento\Catalog\Model\ResourceModel\Category\Collection as CategoryCollection;
-use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 use Magento\Eav\Model\Entity;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Store\Api\Data\StoreInterface;
