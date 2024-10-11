@@ -373,7 +373,7 @@
                       xsi:type="const">Magento\Catalog\Api\Data\CategoryAttributeInterface::ENTITY_TYPE_CODE</argument>
             <argument name="prefix" xsi:type="string">cat__</argument>
             <argument name="attributeMapping" xsi:type="array">
-                <item name="path" xsi:type="string">listCategory</item>
+                <item name="path" xsi:type="string">categoryPath</item>
                 <item name="url_key" xsi:type="string">url</item>
             </argument>
         </arguments>
@@ -626,12 +626,12 @@
             </argument>
             <argument name="attributeMappers" xsi:type="array">
                 <item name="KLEVU_CATEGORY"
-                      xsi:type="object">Klevu\IndexingProducts\Service\Mapper\MagentoToKlevuAttributeMapper</item>
+                      xsi:type="object">Klevu\IndexingCategories\Service\Mapper\MagentoToKlevuAttributeMapper</item>
             </argument>
         </arguments>
     </type>
 
-    <type name="Klevu\Indexing\Console\Command\ConfigurationDumpPipelineCommand">
+    <type name="Klevu\Indexing\Service\Provider\PipelineConfigurationProvider">
         <arguments>
             <argument name="entityIndexerServices" xsi:type="array">
                 <item name="KLEVU_CATEGORY::add"
@@ -652,7 +652,7 @@
         </arguments>
     </type>
 
-    <type name="Klevu\Indexing\Console\Command\ConfigurationOverridesRegenerateCommand">
+    <type name="Klevu\Indexing\Service\Provider\PipelineConfigurationOverridesHandlerProvider">
         <arguments>
             <argument name="configurationOverridesHandlers" xsi:type="array">
                 <item name="KLEVU_CATEGORY" xsi:type="array">
