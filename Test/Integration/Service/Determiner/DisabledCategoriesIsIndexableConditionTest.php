@@ -8,8 +8,8 @@ declare(strict_types=1);
 
 namespace Klevu\IndexingCategories\Test\Integration\Service\Determiner;
 
-use Klevu\IndexingApi\Service\Determiner\IsIndexableDeterminerInterface;
-use Klevu\IndexingCategories\Service\Determiner\DisabledCategoriesIsIndexableDeterminer;
+use Klevu\IndexingApi\Service\Determiner\IsIndexableConditionInterface;
+use Klevu\IndexingCategories\Service\Determiner\DisabledCategoriesIsIndexableCondition;
 use Klevu\TestFixtures\Catalog\CategoryTrait;
 use Klevu\TestFixtures\Catalog\ProductTrait;
 use Klevu\TestFixtures\Store\StoreFixturesPool;
@@ -24,11 +24,11 @@ use PHPUnit\Framework\TestCase;
 use TddWizard\Fixtures\Catalog\CategoryFixturePool;
 
 /**
- * @covers \Klevu\IndexingCategories\Service\Determiner\DisabledCategoriesIsIndexableDeterminer::class
- * @method IsIndexableDeterminerInterface instantiateTestObject(?array $arguments = null)
- * @method IsIndexableDeterminerInterface instantiateTestObjectFromInterface(?array $arguments = null)
+ * @covers \Klevu\IndexingCategories\Service\Determiner\DisabledCategoriesIsIndexableCondition::class
+ * @method IsIndexableConditionInterface instantiateTestObject(?array $arguments = null)
+ * @method IsIndexableConditionInterface instantiateTestObjectFromInterface(?array $arguments = null)
  */
-class DisabledCategoriesIsIndexableDeterminerTest extends TestCase
+class DisabledCategoriesIsIndexableConditionTest extends TestCase
 {
     use CategoryTrait;
     use ObjectInstantiationTrait;
@@ -48,8 +48,8 @@ class DisabledCategoriesIsIndexableDeterminerTest extends TestCase
     {
         parent::setUp();
 
-        $this->implementationFqcn = DisabledCategoriesIsIndexableDeterminer::class;
-        $this->interfaceFqcn = IsIndexableDeterminerInterface::class;
+        $this->implementationFqcn = DisabledCategoriesIsIndexableCondition::class;
+        $this->interfaceFqcn = IsIndexableConditionInterface::class;
         $this->objectManager = Bootstrap::getObjectManager();
         $this->storeFixturesPool = $this->objectManager->get(StoreFixturesPool::class);
         $this->categoryFixturePool = $this->objectManager->get(CategoryFixturePool::class);
@@ -68,6 +68,7 @@ class DisabledCategoriesIsIndexableDeterminerTest extends TestCase
     }
 
     /**
+     * @magentoAppIsolation enabled
      * @magentoDataFixtureBeforeTransaction Magento/Catalog/_files/enable_reindex_schedule.php
      * @magentoConfigFixture default/klevu/indexing/exclude_disabled_categories 0
      */
@@ -101,6 +102,7 @@ class DisabledCategoriesIsIndexableDeterminerTest extends TestCase
     }
 
     /**
+     * @magentoAppIsolation enabled
      * @magentoDataFixtureBeforeTransaction Magento/Catalog/_files/enable_reindex_schedule.php
      * @magentoConfigFixture default/klevu/indexing/exclude_disabled_categories 1
      */

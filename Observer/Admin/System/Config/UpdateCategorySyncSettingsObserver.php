@@ -9,7 +9,7 @@ declare(strict_types=1);
 namespace Klevu\IndexingCategories\Observer\Admin\System\Config;
 
 use Klevu\IndexingApi\Service\Action\CreateCronScheduleActionInterface;
-use Klevu\IndexingCategories\Service\Determiner\DisabledCategoriesIsIndexableDeterminer;
+use Klevu\IndexingCategories\Service\Determiner\DisabledCategoriesIsIndexableCondition;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 
@@ -38,7 +38,7 @@ class UpdateCategorySyncSettingsObserver implements ObserverInterface
         $changedPaths = (array)$observer->getData('changed_paths');
         if (
             !in_array(
-                needle: DisabledCategoriesIsIndexableDeterminer::XML_PATH_EXCLUDE_DISABLED_CATEGORIES,
+                needle: DisabledCategoriesIsIndexableCondition::XML_PATH_EXCLUDE_DISABLED_CATEGORIES,
                 haystack: $changedPaths,
                 strict: true,
             )

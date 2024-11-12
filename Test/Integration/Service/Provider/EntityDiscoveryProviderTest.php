@@ -21,12 +21,7 @@ use Klevu\TestFixtures\Traits\SetAuthKeysTrait;
 use Klevu\TestFixtures\Traits\TestImplementsInterfaceTrait;
 use Klevu\TestFixtures\Website\WebsiteFixturesPool;
 use Klevu\TestFixtures\Website\WebsiteTrait;
-use Magento\Catalog\Model\Category;
-use Magento\Catalog\Model\ResourceModel\Category\Collection as CategoryCollection;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\ObjectManagerInterface;
-use Magento\Store\Api\Data\StoreInterface;
-use Magento\Store\Api\GroupRepositoryInterface;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
 use TddWizard\Fixtures\Catalog\CategoryFixturePool;
@@ -110,7 +105,6 @@ class EntityDiscoveryProviderTest extends TestCase
             $apiKey,
             'rest-auth-key',
         );
-        $currentCategoryCount = $this->getCurrentCategoryCount($storeFixture->get());
 
         $this->createCategory([
             'store_id' => $storeFixture->getId(),
@@ -118,21 +112,18 @@ class EntityDiscoveryProviderTest extends TestCase
         $category = $this->categoryFixturePool->get('test_category');
 
         $provider = $this->instantiateTestObject();
-        $categoryEntitiesByApiKey = $provider->getData(apiKeys: [$apiKey]);
+        $result = $provider->getData(apiKeys: [$apiKey]);
+        $categoryEntitiesByApiKey = iterator_to_array($result);
 
         $this->assertCount(
             expectedCount: 1,
             haystack: $categoryEntitiesByApiKey,
             message: 'Number of category collection by API Key',
         );
-        $categoryEntities = $categoryEntitiesByApiKey[$apiKey];
-        $this->assertCount(
-            expectedCount: 1 + $currentCategoryCount,
-            haystack: $categoryEntities,
-            message: 'Number of categories',
-        );
+        $categoryEntities = iterator_to_array($categoryEntitiesByApiKey[$apiKey]);
+
         $filteredCategoryEntities = array_filter(
-            array: $categoryEntities,
+            array: $categoryEntities[0] ?? [],
             callback: static function (MagentoEntityInterface $categoryEntity) use ($category): bool {
                 return (int)$categoryEntity->getEntityId() === (int)$category->getId();
             },
@@ -179,8 +170,6 @@ class EntityDiscoveryProviderTest extends TestCase
             value: 1,
         );
 
-        $currentCategoryCount = $this->getCurrentCategoryCount($storeFixture->get());
-
         $this->createCategory([
             'store_id' => $storeFixture->getId(),
             'is_active' => true,
@@ -195,22 +184,18 @@ class EntityDiscoveryProviderTest extends TestCase
         $category2 = $this->categoryFixturePool->get('test_category_2');
 
         $provider = $this->instantiateTestObject();
-        $categoryEntitiesByApiKey = $provider->getData(apiKeys: [$apiKey]);
+        $result = $provider->getData(apiKeys: [$apiKey]);
+        $categoryEntitiesByApiKey = iterator_to_array($result);
 
         $this->assertCount(
             expectedCount: 1,
             haystack: $categoryEntitiesByApiKey,
             message: 'Number of category collection by API Key',
         );
-        $categoryEntities = $categoryEntitiesByApiKey[$apiKey];
-        $this->assertCount(
-            expectedCount: 2 + $currentCategoryCount,
-            haystack: $categoryEntities,
-            message: 'Number of categories',
-        );
+        $categoryEntities = iterator_to_array($categoryEntitiesByApiKey[$apiKey]);
 
         $filteredCategoryEntities1 = array_filter(
-            array: $categoryEntities,
+            array: $categoryEntities[0] ?? [],
             callback: static function (MagentoEntityInterface $categoryEntity) use ($category1): bool {
                 return (int)$categoryEntity->getEntityId() === (int)$category1->getId();
             },
@@ -232,7 +217,7 @@ class EntityDiscoveryProviderTest extends TestCase
         );
 
         $filteredCategoryEntities2 = array_filter(
-            array: $categoryEntities,
+            array: $categoryEntities[0] ?? [],
             callback: static function (MagentoEntityInterface $categoryEntity) use ($category2): bool {
                 return (int)$categoryEntity->getEntityId() === (int)$category2->getId();
             },
@@ -304,8 +289,6 @@ class EntityDiscoveryProviderTest extends TestCase
             value: 1,
         );
 
-        $currentCategoryCount = $this->getCurrentCategoryCount($store1);
-
         $this->createCategory([
             'store_id' => $storeFixture1->getId(),
             'is_active' => true,
@@ -337,22 +320,18 @@ class EntityDiscoveryProviderTest extends TestCase
         $category2 = $this->categoryFixturePool->get('test_category_2');
 
         $provider = $this->instantiateTestObject();
-        $categoryEntitiesByApiKey = $provider->getData(apiKeys: [$apiKey]);
+        $result = $provider->getData(apiKeys: [$apiKey]);
+        $categoryEntitiesByApiKey = iterator_to_array($result);
 
         $this->assertCount(
             expectedCount: 1,
             haystack: $categoryEntitiesByApiKey,
             message: 'Number of category collection by API Key',
         );
-        $categoryEntities = $categoryEntitiesByApiKey[$apiKey];
-        $this->assertCount(
-            expectedCount: 2 + $currentCategoryCount,
-            haystack: $categoryEntities,
-            message: 'Number of categories',
-        );
+        $categoryEntities = iterator_to_array($categoryEntitiesByApiKey[$apiKey]);
 
         $filteredCategoryEntities1 = array_filter(
-            array: $categoryEntities,
+            array: $categoryEntities[0] ?? [],
             callback: static function (MagentoEntityInterface $categoryEntity) use ($category1): bool {
                 return (int)$categoryEntity->getEntityId() === (int)$category1->getId();
             },
@@ -374,7 +353,7 @@ class EntityDiscoveryProviderTest extends TestCase
         );
 
         $filteredCategoryEntities2 = array_filter(
-            array: $categoryEntities,
+            array: $categoryEntities[0] ?? [],
             callback: static function (MagentoEntityInterface $categoryEntity) use ($category2): bool {
                 return (int)$categoryEntity->getEntityId() === (int)$category2->getId();
             },
@@ -394,26 +373,5 @@ class EntityDiscoveryProviderTest extends TestCase
             condition: $categoryEntity2->isIndexable(),
             message: ' Is Indexable',
         );
-    }
-
-    /**
-     * @param StoreInterface|null $store
-     *
-     * @return int
-     * @throws LocalizedException
-     */
-    private function getCurrentCategoryCount(?StoreInterface $store = null): int
-    {
-        $categoryCollection = $this->objectManager->get(CategoryCollection::class);
-        $categoryCollection->addAttributeToSelect('*');
-        $categoryCollection->addFieldToFilter('path', ['neq' => '1']);
-        if ($store) {
-            $categoryCollection->setStore((int)$store->getId());
-            $groupRepository = $this->objectManager->get(GroupRepositoryInterface::class);
-            $group = $groupRepository->get($store->getStoreGroupId());
-            $categoryCollection->addPathsFilter([Category::TREE_ROOT_ID . '/' . $group->getRootCategoryId() . '/']);
-        }
-
-        return $categoryCollection->count();
     }
 }

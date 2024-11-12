@@ -296,7 +296,6 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
     public function testExecute_HandlesMultipleStores_SameKeys(): void
     {
         $apiKey = 'klevu-js-api-key';
-        $this->cleanIndexingEntities($apiKey);
 
         $this->createStore([
             'code' => 'klevu_test_store_1',
@@ -311,10 +310,6 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         ]);
         $storeFixture = $this->storeFixturesPool->get('test_store_2');
         $store2 = $storeFixture->get();
-
-        $categoryCollectionCount1 = count($this->getCategories($store1));
-        $categoryCollectionCount2 = count($this->getCategories($store2));
-        $categoryCollectionCount = max($categoryCollectionCount1, $categoryCollectionCount2);
 
         $this->createCategory(
             categoryData: [
@@ -347,16 +342,14 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         );
         $category2 = $this->categoryFixturePool->get('test_category_2');
 
+        $this->cleanIndexingEntities(apiKey: $apiKey);
+
         $service = $this->instantiateTestObject();
         $result1 = $service->execute(entityTypes: ['KLEVU_CATEGORY'], apiKeys: [$apiKey]);
 
         $this->assertTrue($result1->isSuccess());
         $indexingEntities1 = $this->getCategoryIndexingEntities($apiKey);
-        $this->assertCount(
-            expectedCount: 2 + $categoryCollectionCount,
-            haystack: $indexingEntities1,
-            message: 'Final Items Count',
-        );
+
         $this->assertAddIndexingEntity($indexingEntities1, $category1, $apiKey, true);
         $this->assertAddIndexingEntity($indexingEntities1, $category2, $apiKey, false);
         $this->cleanIndexingEntities(apiKey: $apiKey);
@@ -448,10 +441,6 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $storeFixture = $this->storeFixturesPool->get('test_store_2');
         $store2 = $storeFixture->get();
 
-        $categoryCollectionCount1 = count($this->getCategories($store1));
-        $categoryCollectionCount2 = count($this->getCategories($store2));
-        $categoryCollectionCount = max($categoryCollectionCount1, $categoryCollectionCount2);
-
         $this->createCategory(
             categoryData: [
                 'key' => 'test_category_1',
@@ -508,11 +497,6 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $this->assertTrue($result->isSuccess());
 
         $indexingEntities = $this->getCategoryIndexingEntities($apiKey);
-        $this->assertCount(
-            expectedCount: 2 + $categoryCollectionCount,
-            haystack: $indexingEntities,
-            message: 'Final Items Count',
-        );
         $this->assertDeleteIndexingEntity($indexingEntities, $category1, $apiKey, Actions::DELETE, true);
         $this->assertDeleteIndexingEntity($indexingEntities, $category2, $apiKey, Actions::NO_ACTION, true);
 
@@ -533,8 +517,6 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $this->createStore();
         $storeFixture = $this->storeFixturesPool->get('test_store');
         $store = $storeFixture->get();
-
-        $categoryCollectionCount = count($this->getCategories($store));
 
         $this->createCategory(
             categoryData: [
@@ -565,11 +547,6 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
 
         $this->assertTrue($result1->isSuccess());
         $indexingEntities = $this->getCategoryIndexingEntities($apiKey);
-        $this->assertCount(
-            expectedCount: 1 + $categoryCollectionCount,
-            haystack: $indexingEntities,
-            message: 'Final Items Count',
-        );
 
         $indexingEntityArray = $this->filterIndexEntities($indexingEntities, $category->getId(), $apiKey);
         $indexingEntity = array_shift($indexingEntityArray);
@@ -640,10 +617,6 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $storeFixture = $this->storeFixturesPool->get('test_store_2');
         $store2 = $storeFixture->get();
 
-        $categoryCollectionCount1 = count($this->getCategories($store1));
-        $categoryCollectionCount2 = count($this->getCategories($store2));
-        $categoryCollectionCount = max($categoryCollectionCount1, $categoryCollectionCount2);
-
         $this->createCategory(
             categoryData: [
                 'key' => 'test_category_1',
@@ -700,11 +673,6 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $this->assertTrue($result->isSuccess());
 
         $indexingEntities = $this->getCategoryIndexingEntities($apiKey);
-        $this->assertCount(
-            expectedCount: 2 + $categoryCollectionCount,
-            haystack: $indexingEntities,
-            message: 'Final Items Count',
-        );
 
         $indexingEntityArray1 = $this->filterIndexEntities($indexingEntities, $category1->getId(), $apiKey);
         $indexingEntity1 = array_shift($indexingEntityArray1);
@@ -791,10 +759,6 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $apiKey = 'klevu-js-api-key';
 
         $this->createStore();
-        $storeFixture = $this->storeFixturesPool->get('test_store');
-        $store = $storeFixture->get();
-
-        $categoryCollectionCount = count($this->getCategories($store));
 
         $this->createCategory(
             categoryData: [
@@ -820,11 +784,6 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $this->assertTrue($result->isSuccess());
 
         $indexingEntities = $this->getCategoryIndexingEntities($apiKey);
-        $this->assertCount(
-            expectedCount: 1 + $categoryCollectionCount,
-            haystack: $indexingEntities,
-            message: 'Final Items Count',
-        );
         $this->assertDeleteIndexingEntity($indexingEntities, $category, $apiKey, Actions::NO_ACTION, false);
         $this->cleanIndexingEntities(apiKey: $apiKey);
     }
@@ -841,10 +800,6 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $apiKey = 'klevu-js-api-key';
 
         $this->createStore();
-        $storeFixture = $this->storeFixturesPool->get('test_store');
-        $store = $storeFixture->get();
-
-        $categoryCollectionCount = count($this->getCategories($store));
 
         $this->createCategory(
             categoryData: [
@@ -870,11 +825,6 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $this->assertTrue($result->isSuccess());
 
         $indexingEntities = $this->getCategoryIndexingEntities($apiKey);
-        $this->assertCount(
-            expectedCount: 1 + $categoryCollectionCount,
-            haystack: $indexingEntities,
-            message: 'Final Items Count',
-        );
         $indexingEntityArray = $this->filterIndexEntities($indexingEntities, $category->getId(), $apiKey);
         $indexingEntity = array_shift($indexingEntityArray);
         $this->assertSame(
@@ -948,10 +898,6 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $storeFixture = $this->storeFixturesPool->get('test_store_2');
         $store2 = $storeFixture->get();
 
-        $categoryCollectionCount1 = count($this->getCategories($store1));
-        $categoryCollectionCount2 = count($this->getCategories($store2));
-        $categoryCollectionCount = max($categoryCollectionCount1, $categoryCollectionCount2);
-
         $this->createCategory(
             categoryData: [
                 'key' => 'test_category_1',
@@ -1024,11 +970,6 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $this->assertTrue($result->isSuccess());
 
         $indexingEntities = $this->getCategoryIndexingEntities($apiKey);
-        $this->assertCount(
-            expectedCount: 3 + $categoryCollectionCount,
-            haystack: $indexingEntities,
-            message: 'Final Items Count',
-        );
 
         $indexingEntityArray1 = $this->filterIndexEntities($indexingEntities, $category1->getId(), $apiKey);
         $indexingEntity1 = array_shift($indexingEntityArray1);

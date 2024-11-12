@@ -132,6 +132,7 @@ class ChangeRootCategoryObserverTest extends TestCase
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ID => $parentCategoryFixture->getId(),
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::NEXT_ACTION => Actions::NO_ACTION,
             IndexingEntity::LAST_ACTION => Actions::ADD,
@@ -141,6 +142,7 @@ class ChangeRootCategoryObserverTest extends TestCase
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ID => $childCategoryFixture->getId(),
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::NEXT_ACTION => Actions::NO_ACTION,
             IndexingEntity::LAST_ACTION => Actions::ADD,
@@ -248,6 +250,7 @@ class ChangeRootCategoryObserverTest extends TestCase
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ID => $origParentCategoryFixture->getId(),
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::NEXT_ACTION => Actions::NO_ACTION,
             IndexingEntity::LAST_ACTION => Actions::ADD,
@@ -257,6 +260,7 @@ class ChangeRootCategoryObserverTest extends TestCase
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ID => $origChildCategoryFixture->getId(),
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::NEXT_ACTION => Actions::NO_ACTION,
             IndexingEntity::LAST_ACTION => Actions::ADD,
