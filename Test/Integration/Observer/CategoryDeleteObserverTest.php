@@ -161,6 +161,7 @@ class CategoryDeleteObserverTest extends TestCase
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ID => $categoryFixture->getId(),
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::NEXT_ACTION => Actions::NO_ACTION,
             IndexingEntity::LAST_ACTION => Actions::ADD,
@@ -248,6 +249,7 @@ class CategoryDeleteObserverTest extends TestCase
         $indexingEntity->setTargetId((int)$data[IndexingEntity::TARGET_ID]);
         $indexingEntity->setTargetParentId($data[IndexingEntity::TARGET_PARENT_ID] ?? null);
         $indexingEntity->setTargetEntityType($data[IndexingEntity::TARGET_ENTITY_TYPE] ?? 'KLEVU_CATEGORY');
+        $indexingEntity->setTargetEntitySubtype($data[IndexingEntity::TARGET_ENTITY_SUBTYPE] ?? 'category');
         $indexingEntity->setApiKey($data[IndexingEntity::API_KEY] ?? 'klevu-js-api-key');
         $indexingEntity->setNextAction($data[IndexingEntity::NEXT_ACTION] ?? Actions::NO_ACTION);
         $indexingEntity->setLastAction($data[IndexingEntity::LAST_ACTION] ?? Actions::NO_ACTION);

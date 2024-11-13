@@ -9,8 +9,8 @@ declare(strict_types=1);
 namespace Klevu\IndexingCategories\Test\Integration\Service\Determiner;
 
 use Klevu\IndexingApi\Model\Source\IndexType;
-use Klevu\IndexingApi\Service\Determiner\IsAttributeIndexableDeterminerInterface;
-use Klevu\IndexingCategories\Service\Determiner\IsAttributeIndexTypeIndexableDeterminer;
+use Klevu\IndexingApi\Service\Determiner\IsAttributeIndexableConditionInterface;
+use Klevu\IndexingCategories\Service\Determiner\IsAttributeIndexTypeIndexableCondition;
 use Klevu\TestFixtures\Catalog\Attribute\AttributeFixturePool;
 use Klevu\TestFixtures\Catalog\AttributeTrait;
 use Klevu\TestFixtures\Store\StoreFixturesPool;
@@ -24,7 +24,12 @@ use Magento\Framework\ObjectManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
 
-class IsAttributeIndexTypeIndexableDeterminerTest extends TestCase
+/**
+ * @covers \Klevu\IndexingApi\Service\Determiner\IsAttributeIndexableConditionInterface::class
+ * @method IsAttributeIndexTypeIndexableCondition instantiateTestObject(?array $arguments = null)
+ * @method IsAttributeIndexTypeIndexableCondition instantiateTestObjectFromInterface(?array $arguments = null)
+ */
+class IsAttributeIndexTypeIndexableConditionTest extends TestCase
 {
     use AttributeTrait;
     use ObjectInstantiationTrait;
@@ -43,8 +48,8 @@ class IsAttributeIndexTypeIndexableDeterminerTest extends TestCase
     {
         parent::setUp();
 
-        $this->implementationFqcn = IsAttributeIndexTypeIndexableDeterminer::class;
-        $this->interfaceFqcn = IsAttributeIndexableDeterminerInterface::class;
+        $this->implementationFqcn = IsAttributeIndexTypeIndexableCondition::class;
+        $this->interfaceFqcn = IsAttributeIndexableConditionInterface::class;
         $this->objectManager = Bootstrap::getObjectManager();
         $this->storeFixturesPool = $this->objectManager->get(StoreFixturesPool::class);
         $this->attributeFixturePool = $this->objectManager->get(AttributeFixturePool::class);

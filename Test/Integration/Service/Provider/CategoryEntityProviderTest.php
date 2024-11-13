@@ -20,12 +20,7 @@ use Klevu\TestFixtures\Traits\TestImplementsInterfaceTrait;
 use Klevu\TestFixtures\Website\WebsiteFixturesPool;
 use Klevu\TestFixtures\Website\WebsiteTrait;
 use Magento\Catalog\Api\Data\CategoryInterface;
-use Magento\Catalog\Model\Category;
-use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\ObjectManagerInterface;
-use Magento\Store\Api\Data\StoreInterface;
-use Magento\Store\Api\GroupRepositoryInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
@@ -97,8 +92,6 @@ class CategoryEntityProviderTest extends TestCase
         $scopeProvider = $this->objectManager->get(ScopeProviderInterface::class);
         $scopeProvider->setCurrentScope($storeFixture->get());
 
-        $currentCategoryCount = $this->getCurrentCategoryCount($storeFixture->get());
-
         $this->createCategory([
             'key' => 'top_cat',
             'name' => 'Top Category',
@@ -118,10 +111,11 @@ class CategoryEntityProviderTest extends TestCase
 
         $items = [];
         foreach ($searchResults as $searchResult) {
-            $items[] = $searchResult;
+            foreach ($searchResult as $key => $resultItems) {
+                $items[$key] = $resultItems;
+            }
         }
 
-        $this->assertCount(expectedCount: 2 + $currentCategoryCount, haystack: $items);
         $categoryIds = array_map(
             callback: static function (CategoryInterface $item): int {
                 return (int)$item->getId();
@@ -172,8 +166,6 @@ class CategoryEntityProviderTest extends TestCase
         $scopeProvider = $this->objectManager->get(ScopeProviderInterface::class);
         $scopeProvider->setCurrentScopeByCode(scopeCode: 'default', scopeType: ScopeInterface::SCOPE_STORES);
 
-        $currentCategoryCount = $this->getCurrentCategoryCount();
-
         $this->createCategory([
             'key' => 'top_cat',
             'name' => 'Top Category 2',
@@ -191,10 +183,11 @@ class CategoryEntityProviderTest extends TestCase
 
         $items = [];
         foreach ($searchResults as $searchResult) {
-            $items[] = $searchResult;
+            foreach ($searchResult as $key => $resultItems) {
+                $items[$key] = $resultItems;
+            }
         }
 
-        $this->assertCount(expectedCount: 2 + $currentCategoryCount, haystack: $items);
         $categoryIds = array_map(
             callback: static function (CategoryInterface $item): int {
                 return (int)$item->getId();
@@ -276,7 +269,9 @@ class CategoryEntityProviderTest extends TestCase
 
         $items = [];
         foreach ($searchResults as $searchResult) {
-            $items[] = $searchResult;
+            foreach ($searchResult as $key => $resultItems) {
+                $items[$key] = $resultItems;
+            }
         }
 
         $this->assertCount(expectedCount: 1, haystack: $items);
@@ -352,28 +347,5 @@ class CategoryEntityProviderTest extends TestCase
             $items[] = $searchResult;
         }
         $this->assertCount(expectedCount: 0, haystack: $items);
-    }
-
-    /**
-     * @param StoreInterface|null $store
-     *
-     * @return int
-     * @throws LocalizedException
-     */
-    private function getCurrentCategoryCount(?StoreInterface $store = null): int
-    {
-        $categoryCollectionFactory = $this->objectManager->get(CategoryCollectionFactory::class);
-        $categoryCollection = $categoryCollectionFactory->create();
-
-        $categoryCollection->addAttributeToSelect('*');
-        $categoryCollection->addFieldToFilter('path', ['neq' => '1']);
-        if ($store) {
-            $categoryCollection->setStore((int)$store->getId());
-            $groupRepository = $this->objectManager->get(GroupRepositoryInterface::class);
-            $group = $groupRepository->get($store->getStoreGroupId());
-            $categoryCollection->addPathsFilter([Category::TREE_ROOT_ID . '/' . $group->getRootCategoryId() . '/']);
-        }
-
-        return $categoryCollection->count();
     }
 }

@@ -12,9 +12,12 @@ use Klevu\Configuration\Service\Provider\ScopeConfigProviderInterface;
 use Klevu\IndexingApi\Service\Provider\EntityProviderInterface;
 use Klevu\IndexingCategories\Model\ResourceModel\Category\Collection as CategoryCollection;
 use Klevu\IndexingCategories\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
+use Magento\Catalog\Api\Data\CategoryInterface;
 use Magento\Catalog\Model\Category;
 use Magento\Eav\Model\Entity;
+use Magento\Framework\DB\Select;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Api\GroupRepositoryInterface;
 use Psr\Log\LoggerInterface;
@@ -43,6 +46,10 @@ class CategoryEntityProvider implements EntityProviderInterface
      * @var string
      */
     private readonly string $entitySubtype;
+    /**
+     * @var int|null
+     */
+    private readonly ?int $batchSize;
 
     /**
      * @param CategoryCollectionFactory $categoryCollectionFactory
@@ -50,6 +57,7 @@ class CategoryEntityProvider implements EntityProviderInterface
      * @param LoggerInterface $logger
      * @param GroupRepositoryInterface $groupRepository
      * @param string $entitySubtype
+     * @param int|null $batchSize
      */
     public function __construct(
         CategoryCollectionFactory $categoryCollectionFactory,
@@ -57,19 +65,21 @@ class CategoryEntityProvider implements EntityProviderInterface
         LoggerInterface $logger,
         GroupRepositoryInterface $groupRepository,
         string $entitySubtype = self::ENTITY_SUBTYPE_CATEGORY,
+        ?int $batchSize = null,
     ) {
         $this->categoryCollectionFactory = $categoryCollectionFactory;
         $this->syncEnabledProvider = $syncEnabledProvider;
         $this->logger = $logger;
         $this->groupRepository = $groupRepository;
         $this->entitySubtype = $entitySubtype;
+        $this->batchSize = $batchSize;
     }
 
     /**
      * @param StoreInterface|null $store
      * @param int[]|null $entityIds
      *
-     * @return \Generator|null
+     * @return \Generator<CategoryInterface[]>|null
      * @throws LocalizedException
      */
     public function get(?StoreInterface $store = null, ?array $entityIds = []): ?\Generator
@@ -77,9 +87,25 @@ class CategoryEntityProvider implements EntityProviderInterface
         if (!$this->syncEnabledProvider->get()) {
             return null;
         }
-        $categoryCollection = $this->getCollection(store: $store, entityIds: $entityIds);
-        foreach ($categoryCollection as $category) {
-            yield $category;
+        $currentEntityId = 0;
+        while (true) {
+            $categoryCollection = $this->getCollection(
+                store: $store,
+                entityIds: $entityIds,
+                pageSize: $this->batchSize,
+                currentEntityId: $currentEntityId + 1,
+            );
+            if (!$categoryCollection->getSize()) {
+                break;
+            }
+            /** @var CategoryInterface[] $categories */
+            $categories = $categoryCollection->getItems();
+            yield $categories;
+            $lastCategory = array_pop($categories);
+            $currentEntityId = $lastCategory->getId();
+            if (null === $this->batchSize || $categoryCollection->getSize() < $this->batchSize) {
+                break;
+            }
         }
     }
 
@@ -94,16 +120,29 @@ class CategoryEntityProvider implements EntityProviderInterface
     /**
      * @param StoreInterface|null $store
      * @param int[]|null $entityIds
+     * @param int|null $pageSize
+     * @param int $currentEntityId
      *
      * @return CategoryCollection
      * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
-    private function getCollection(?StoreInterface $store, ?array $entityIds): CategoryCollection
-    {
+    private function getCollection(
+        ?StoreInterface $store,
+        ?array $entityIds,
+        ?int $pageSize = null,
+        int $currentEntityId = 1,
+    ): CategoryCollection {
+        // @TODO extract to own class
         /** @var CategoryCollection $categoryCollection */
         $categoryCollection = $this->categoryCollectionFactory->create();
         $categoryCollection->addAttributeToSelect(attribute: '*');
         $categoryCollection->addFieldToFilter('path', ['neq' => '1']);
+        if (null !== $pageSize) {
+            $categoryCollection->setPageSize($pageSize);
+            $categoryCollection->addFieldToFilter(Entity::DEFAULT_ENTITY_ID_FIELD, ['gteq' => $currentEntityId]);
+        }
+        $categoryCollection->setOrder(Entity::DEFAULT_ENTITY_ID_FIELD, Select::SQL_ASC);
         if ($store) {
             $categoryCollection->setStore(store: (int)$store->getId());
             $group = $this->groupRepository->get(id: $store->getStoreGroupId());

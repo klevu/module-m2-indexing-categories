@@ -11,7 +11,7 @@ namespace Klevu\IndexingProducts\Test\Integration\Observer\Admin\System\Config;
 use Klevu\IndexingApi\Service\Action\CreateCronScheduleActionInterface;
 use Klevu\IndexingCategories\Constants;
 use Klevu\IndexingCategories\Observer\Admin\System\Config\UpdateCategorySyncSettingsObserver;
-use Klevu\IndexingCategories\Service\Determiner\DisabledCategoriesIsIndexableDeterminer;
+use Klevu\IndexingCategories\Service\Determiner\DisabledCategoriesIsIndexableCondition;
 use Klevu\TestFixtures\Store\StoreFixturesPool;
 use Klevu\TestFixtures\Store\StoreTrait;
 use Klevu\TestFixtures\Traits\ObjectInstantiationTrait;
@@ -144,7 +144,7 @@ class UpdateCategorySyncSettingsObserverTest extends TestCase
             'data' => [
                 'changed_paths' => [
                     Constants::XML_PATH_CATEGORY_SYNC_ENABLED,
-                    DisabledCategoriesIsIndexableDeterminer::XML_PATH_EXCLUDE_DISABLED_CATEGORIES,
+                    DisabledCategoriesIsIndexableCondition::XML_PATH_EXCLUDE_DISABLED_CATEGORIES,
                 ],
             ],
         ]);
