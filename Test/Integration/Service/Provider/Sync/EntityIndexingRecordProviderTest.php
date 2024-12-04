@@ -109,13 +109,14 @@ class EntityIndexingRecordProviderTest extends TestCase
 
         /** @var EntityIndexingRecordInterface[] $result */
         $result = [];
-        foreach ($generator as $indexingRecord) {
-            $result[] = $indexingRecord;
+        foreach ($generator as $indexingRecords) {
+            $result[] = $indexingRecords;
         }
         $this->assertCount(expectedCount: 1, haystack: $result);
-        $keys = array_keys($result);
+        $this->assertCount(expectedCount: 1, haystack: $result[0]);
         /** @var EntityIndexingRecordInterface $indexingRecord */
-        $indexingRecord = $result[$keys[0]];
+        $indexingRecord = $result[0][0] ?? null;
+
         $this->assertSame(
             expected: $indexingEntity->getId(),
             actual: $indexingRecord->getRecordId(),

@@ -9,12 +9,15 @@ declare(strict_types=1);
 namespace Klevu\IndexingCategories\Service\Provider;
 
 use Klevu\Configuration\Service\Provider\ScopeConfigProviderInterface;
+use Klevu\Indexing\Validator\BatchSizeValidator;
 use Klevu\IndexingApi\Service\Provider\EntityProviderInterface;
+use Klevu\IndexingApi\Validator\ValidatorInterface;
 use Klevu\IndexingCategories\Model\ResourceModel\Category\Collection as CategoryCollection;
 use Klevu\IndexingCategories\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 use Magento\Catalog\Api\Data\CategoryInterface;
 use Magento\Catalog\Model\Category;
 use Magento\Eav\Model\Entity;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\DB\Select;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -58,6 +61,9 @@ class CategoryEntityProvider implements EntityProviderInterface
      * @param GroupRepositoryInterface $groupRepository
      * @param string $entitySubtype
      * @param int|null $batchSize
+     * @param ValidatorInterface|null $batchSizeValidator
+     *
+     * @throws \InvalidArgumentException
      */
     public function __construct(
         CategoryCollectionFactory $categoryCollectionFactory,
@@ -66,12 +72,24 @@ class CategoryEntityProvider implements EntityProviderInterface
         GroupRepositoryInterface $groupRepository,
         string $entitySubtype = self::ENTITY_SUBTYPE_CATEGORY,
         ?int $batchSize = null,
+        ?ValidatorInterface $batchSizeValidator = null,
     ) {
         $this->categoryCollectionFactory = $categoryCollectionFactory;
         $this->syncEnabledProvider = $syncEnabledProvider;
         $this->logger = $logger;
         $this->groupRepository = $groupRepository;
         $this->entitySubtype = $entitySubtype;
+
+        $objectManager = ObjectManager::getInstance();
+        $batchSizeValidator = $batchSizeValidator ?: $objectManager->get(BatchSizeValidator::class);
+        if (!$batchSizeValidator->isValid($batchSize)) {
+            throw new \InvalidArgumentException(
+                message: sprintf(
+                    'Invalid Batch Size: %s',
+                    implode(', ', $batchSizeValidator->getMessages()),
+                ),
+            );
+        }
         $this->batchSize = $batchSize;
     }
 
