@@ -73,6 +73,7 @@ class AttributeIndexingRecordCreatorServiceTest extends TestCase
     }
 
     /**
+     * @magentoAppIsolation enabled
      * @magentoConfigFixture default/general/locale/code en_US
      * @magentoConfigFixture klevu_test_store_1_store general/locale/code en_GB
      * @magentoConfigFixture klevu_test_store_2_store general/locale/code fr_FR

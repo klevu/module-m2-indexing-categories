@@ -85,6 +85,7 @@ class AttributeIndexingRecordProviderTest extends TestCase
     }
 
     /**
+     * @magentoAppIsolation enabled
      * @magentoConfigFixture default/general/locale/code en_US
      * @magentoConfigFixture klevu_test_store_1_store general/locale/code en_GB
      */
@@ -208,6 +209,7 @@ class AttributeIndexingRecordProviderTest extends TestCase
     }
 
     /**
+     * @magentoAppIsolation enabled
      * @magentoConfigFixture default/general/locale/code en_US
      * @magentoConfigFixture klevu_test_store_1_store general/locale/code en_GB
      */
