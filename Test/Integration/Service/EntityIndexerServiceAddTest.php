@@ -28,6 +28,7 @@ use Klevu\TestFixtures\Traits\PipelineEntityApiCallTrait;
 use Klevu\TestFixtures\Traits\SetAuthKeysTrait;
 use Klevu\TestFixtures\Traits\TestImplementsInterfaceTrait;
 use Magento\Framework\ObjectManagerInterface;
+use Magento\Store\Model\StoreManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
 use TddWizard\Fixtures\Catalog\CategoryFixturePool;
@@ -260,6 +261,8 @@ class EntityIndexerServiceAddTest extends TestCase
 
         $this->createStore();
         $storeFixture = $this->storeFixturesPool->get('test_store');
+        $storeManager = $this->objectManager->get(StoreManagerInterface::class);
+        $storeManager->setCurrentStore($storeFixture->get());
         $scopeProvider = $this->objectManager->get(ScopeProviderInterface::class);
         $scopeProvider->setCurrentScope($storeFixture->get());
         $this->setAuthKeys(
@@ -271,6 +274,13 @@ class EntityIndexerServiceAddTest extends TestCase
         $this->createCategory([
             'key' => 'top_cat',
             'name' => 'Top Category',
+            'url_key' => 'top-category-url',
+            'stores' => [
+                $storeFixture->getId() => [
+                    'name' => 'Other Top Category',
+                    'url_key' => 'other-top-category-url',
+                ],
+            ],
         ]);
         $topCategoryFixture = $this->categoryFixturePool->get('top_cat');
         $topCategory = $topCategoryFixture->getCategory();
@@ -281,6 +291,15 @@ class EntityIndexerServiceAddTest extends TestCase
             'description' => 'Test Category Description',
             'parent' => $topCategoryFixture,
             'image' => 'klevu_test_image_name.jpg',
+            'is_active' => false,
+            'stores' => [
+                $storeFixture->getId() => [
+                    'name' => 'Other Category',
+                    'is_active' => true,
+                    'description' => 'Other Category Description',
+                    'url_key' => 'other-category-url',
+                ],
+            ],
         ]);
         $categoryFixture = $this->categoryFixturePool->get('test_category');
 
@@ -340,7 +359,7 @@ class EntityIndexerServiceAddTest extends TestCase
         $this->assertArrayHasKey(key: 'name', array: $attributes);
         $this->assertArrayHasKey(key: 'default', array: $attributes['name']);
         $this->assertSame(
-            expected: 'Test Category',
+            expected: 'Other Category',
             actual: $attributes['name']['default'],
             message: 'Name: ' . $attributes['name']['default'],
         );
@@ -348,7 +367,7 @@ class EntityIndexerServiceAddTest extends TestCase
         $this->assertArrayHasKey(key: 'description', array: $attributes);
         $this->assertArrayHasKey(key: 'default', array: $attributes['description']);
         $this->assertSame(
-            expected: 'Test Category Description',
+            expected: 'Other Category Description',
             actual: $attributes['description']['default'],
             message: 'Description: ' . $attributes['description']['default'],
         );
@@ -358,10 +377,16 @@ class EntityIndexerServiceAddTest extends TestCase
         $this->assertContains(needle: 'search', haystack: $attributes['visibility']);
 
         $this->assertArrayHasKey(key: 'url', array: $attributes);
-        $this->assertStringContainsString(needle: '/test-category-url', haystack: $attributes['url']);
+        $this->assertStringContainsString(
+            needle: 'other-top-category-url/other-category-url',
+            haystack: $attributes['url'],
+        );
 
         $this->assertArrayHasKey(key: 'categoryPath', array: $attributes);
-        $this->assertStringContainsString(needle: 'Top Category;Test Category', haystack: $attributes['categoryPath']);
+        $this->assertStringContainsString(
+            needle: 'Other Top Category;Other Category',
+            haystack: $attributes['categoryPath'],
+        );
 
         $this->assertArrayHasKey(key: 'image', array: $attributes);
         $this->assertArrayHasKey(key: 'default', array: $attributes['image']);

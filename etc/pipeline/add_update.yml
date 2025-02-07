@@ -54,12 +54,12 @@ stages:
                       contextKey: "currentEntityType"
               filterRootCategories:
                 stages:
-                  -
+                  countCategoriesInPath:
                     pipeline: Stage\Extract
                     args:
                       extraction: currentCategory::getPath()
                       transformations: Split("/")|Count
-                  -
+                  validate:
                     pipeline: Stage\Validate
                     args:
                       validation: IsGreaterThan(2)

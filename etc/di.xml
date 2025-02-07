@@ -172,6 +172,12 @@
                       xsi:type="object">Klevu\IndexingCategories\Service\EntityUpdateResponderService</argument>
             <argument name="attributesToWatchProvider"
                       xsi:type="object">Klevu\IndexingCategories\Service\Provider\AttributesToWatchProvider</argument>
+            <argument name="logger" xsi:type="object">Klevu\Indexing\Logger\Logger</argument>
+            <argument name="attributesToTriggerUpdateOfDescendents" xsi:type="array">
+                <item name="name" xsi:type="const">Magento\Catalog\Api\Data\CategoryInterface::KEY_NAME</item>
+                <item name="url_key" xsi:type="string">url_key</item>
+                <item name="url_path" xsi:type="string">url_path</item>
+            </argument>
         </arguments>
     </type>
 

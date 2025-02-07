@@ -1,5 +1,5 @@
 stages:
-  -
+  getImage:
     pipeline: Pipeline\Fallback
     stages:
       imageGeneration:
