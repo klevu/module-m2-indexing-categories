@@ -138,7 +138,7 @@ class CategoryPluginTest extends TestCase
         $this->assertNotNull($categoryIndexingEntity);
         $this->assertSame(expected: Actions::ADD, actual: $categoryIndexingEntity->getNextAction());
 
-        $category->setTitle('Category Test: New Title');
+        $category->setDescription('Category Test: New Description');
         $categoryResourceModel = $this->objectManager->get(CategoryResourceModel::class);
         $categoryResourceModel->save($category);
 
@@ -180,7 +180,7 @@ class CategoryPluginTest extends TestCase
             IndexingEntity::IS_INDEXABLE => true,
         ]);
 
-        $category->setTitle('Category Test: New Title');
+        $category->setDescription('Category Test: New Description');
         $categoryResourceModel = $this->objectManager->get(CategoryResourceModel::class);
         $categoryResourceModel->save($category);
 
@@ -309,6 +309,114 @@ class CategoryPluginTest extends TestCase
         $this->assertNotNull($categoryIndexingEntity);
         $this->assertTrue(condition: $categoryIndexingEntity->getIsIndexable());
         $this->assertSame(expected: Actions::ADD, actual: $categoryIndexingEntity->getNextAction());
+
+        $this->cleanIndexingEntities($apiKey);
+    }
+
+    /**
+     * @magentoAppIsolation enabled
+     * @magentoConfigFixture klevu_test_store_1_store klevu_configuration/auth_keys/js_api_key klevu-js-api-key
+     * @magentoConfigFixture klevu_test_store_1_store klevu_configuration/auth_keys/rest_auth_key klevu-rest-auth-key
+     * @testWith ["name"]
+     *           ["url_key"]
+     */
+    public function testAroundSave_ForExistingCategory_UpdateNextAction_ForAllDescendents_WhenNameOrUrlChanged(
+        string $attribute,
+    ): void {
+        $apiKey = 'klevu-js-api-key';
+
+        $this->createStore();
+
+        $this->createCategory([
+            'key' => 'top_cat',
+            'name' => 'Top Category',
+        ]);
+        $topCategoryFixture = $this->categoryFixturePool->get('top_cat');
+        $this->createCategory([
+            'key' => 'test_category',
+            'name' => 'Test Category',
+            'parent' => $topCategoryFixture,
+        ]);
+        $middleCategoryFixture = $this->categoryFixturePool->get('test_category');
+        $this->createCategory([
+            'key' => 'bottom_category',
+            'name' => 'Bottom Category',
+            'parent' => $middleCategoryFixture,
+        ]);
+        $bottomCategoryFixture = $this->categoryFixturePool->get('bottom_category');
+
+        $this->cleanIndexingEntities($apiKey);
+
+        $this->createIndexingEntity([
+            IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ID => $topCategoryFixture->getId(),
+            IndexingEntity::API_KEY => $apiKey,
+            IndexingEntity::NEXT_ACTION => Actions::NO_ACTION,
+            IndexingEntity::IS_INDEXABLE => true,
+        ]);
+        $this->createIndexingEntity([
+            IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ID => $middleCategoryFixture->getId(),
+            IndexingEntity::API_KEY => $apiKey,
+            IndexingEntity::NEXT_ACTION => Actions::NO_ACTION,
+            IndexingEntity::IS_INDEXABLE => true,
+        ]);
+        $this->createIndexingEntity([
+            IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ID => $bottomCategoryFixture->getId(),
+            IndexingEntity::API_KEY => $apiKey,
+            IndexingEntity::NEXT_ACTION => Actions::NO_ACTION,
+            IndexingEntity::IS_INDEXABLE => true,
+        ]);
+
+        /** @var Category&CategoryInterface $topCategory */
+        $topCategory = $topCategoryFixture->getCategory();
+        $topCategory->setData($attribute, sprintf('category_test_new_%s', $attribute));
+        $categoryResourceModel = $this->objectManager->get(CategoryResourceModel::class);
+        $categoryResourceModel->save($topCategory);
+
+        $topCategoryIndexingEntity = $this->getIndexingEntityForCategory($apiKey, $topCategory);
+        $this->assertNotNull($topCategoryIndexingEntity);
+        $this->assertTrue(condition: $topCategoryIndexingEntity->getIsIndexable());
+        $this->assertSame(
+            expected: Actions::UPDATE,
+            actual: $topCategoryIndexingEntity->getNextAction(),
+            message: sprintf(
+                'Expected %s, Received %s',
+                Actions::UPDATE->value,
+                $topCategoryIndexingEntity->getNextAction()->value,
+            ),
+        );
+        $middleCategoryIndexingEntity = $this->getIndexingEntityForCategory(
+            $apiKey,
+            $middleCategoryFixture->getCategory(),
+        );
+        $this->assertNotNull($middleCategoryIndexingEntity);
+        $this->assertTrue(condition: $middleCategoryIndexingEntity->getIsIndexable());
+        $this->assertSame(
+            expected: Actions::UPDATE,
+            actual: $middleCategoryIndexingEntity->getNextAction(),
+            message: sprintf(
+                'Expected %s, Received %s',
+                Actions::UPDATE->value,
+                $middleCategoryIndexingEntity->getNextAction()->value,
+            ),
+        );
+        $bottomCategoryIndexingEntity = $this->getIndexingEntityForCategory(
+            $apiKey,
+            $bottomCategoryFixture->getCategory(),
+        );
+        $this->assertNotNull($bottomCategoryIndexingEntity);
+        $this->assertTrue(condition: $bottomCategoryIndexingEntity->getIsIndexable());
+        $this->assertSame(
+            expected: Actions::UPDATE,
+            actual: $bottomCategoryIndexingEntity->getNextAction(),
+            message: sprintf(
+                'Expected %s, Received %s',
+                Actions::UPDATE->value,
+                $bottomCategoryIndexingEntity->getNextAction()->value,
+            ),
+        );
 
         $this->cleanIndexingEntities($apiKey);
     }

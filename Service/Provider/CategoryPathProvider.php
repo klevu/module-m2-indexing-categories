@@ -11,14 +11,14 @@ namespace Klevu\IndexingCategories\Service\Provider;
 use Klevu\Configuration\Service\Provider\ScopeProviderInterface;
 use Magento\Catalog\Api\CategoryRepositoryInterface;
 use Magento\Catalog\Api\Data\CategoryInterface;
-use Magento\Catalog\Model\Category;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 class CategoryPathProvider implements CategoryPathProviderInterface
 {
-    public const CATEGORY_PATH_SEPARATOR = ';';
+    public const CATEGORY_PATH_SEPARATOR_KLEVU = ';';
+    public const CATEGORY_PATH_SEPARATOR_MAGENTO = '/';
 
     /**
      * @var CategoryRepositoryInterface
@@ -71,27 +71,28 @@ class CategoryPathProvider implements CategoryPathProviderInterface
     ): string {
         if (null === $excludeCategoryIds) {
             $categoryPath = $category->getPath();
-            $categoryPath = explode(static::CATEGORY_PATH_SEPARATOR, $categoryPath);
-            $excludeCategoryIds = array_slice($categoryPath, 0, 2);
+            $categoryPathArray = explode(separator: static::CATEGORY_PATH_SEPARATOR_MAGENTO, string: $categoryPath);
+            $excludeCategoryIds = array_map(
+                callback: 'intval',
+                array: array_slice(array: $categoryPathArray, offset: 0, length: 2),
+            );
         }
         if (in_array((int)$category->getId(), $excludeCategoryIds, true)) {
             return $curPath;
         }
         if ($curPath) {
-            $curPath = static::CATEGORY_PATH_SEPARATOR . $curPath;
+            $curPath = static::CATEGORY_PATH_SEPARATOR_KLEVU . $curPath;
         }
         $curPath = $category->getName() . $curPath;
-
         $parentCategory = $this->getParentCategory($category);
-        if (!$parentCategory) {
-            return $curPath;
-        }
 
-        return $this->getForCategory(
-            category: $parentCategory,
-            curPath: $curPath,
-            excludeCategoryIds: $excludeCategoryIds,
-        );
+        return $parentCategory
+            ? $this->getForCategory(
+                category: $parentCategory,
+                curPath: $curPath,
+                excludeCategoryIds: $excludeCategoryIds,
+            )
+            : $curPath;
     }
 
     /**
@@ -103,6 +104,9 @@ class CategoryPathProvider implements CategoryPathProviderInterface
      */
     public function getForCategoryId(int $categoryId, ?int $storeId = null): string
     {
+        if (null === $storeId) {
+            $storeId = $this->getStoreId();
+        }
         $category = $this->categoryRepository->get(
             categoryId: $categoryId,
             storeId: $storeId,
@@ -125,12 +129,11 @@ class CategoryPathProvider implements CategoryPathProviderInterface
         if (!$category->getParentId()) {
             return null;
         }
-        $return = ($category instanceof Category)
-            ? $category->getParentCategory()
-            : $this->categoryRepository->get(
-                categoryId: (int)$category->getParentId(),
-            );
         $storeId = $this->getStoreId();
+        $return = $this->categoryRepository->get(
+            categoryId: (int)$category->getParentId(),
+            storeId: $storeId,
+        );
 
         return ((int)$return->getId() !== $this->getRootCategory($storeId))
             ? $return

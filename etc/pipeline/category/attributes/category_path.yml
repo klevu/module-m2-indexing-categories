@@ -1,7 +1,7 @@
 stages:
-  -
+  getCategoryPath:
     pipeline: Stage\Extract
     args:
-      extraction: currentCategory::getEntityId()
+      extraction: currentCategory::
       transformations:
         - ToCategoryPath

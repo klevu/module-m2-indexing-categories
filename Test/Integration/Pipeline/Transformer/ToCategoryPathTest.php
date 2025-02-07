@@ -125,7 +125,7 @@ class ToCategoryPathTest extends TestCase
 
         $provider = $this->instantiateTestObject();
         $result = $provider->transform(
-            data: $bottomCategoryFixture->getId(),
+            data: $bottomCategoryFixture->getCategory(),
         );
 
         $this->assertSame(

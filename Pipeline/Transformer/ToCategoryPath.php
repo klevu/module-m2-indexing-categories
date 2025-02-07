@@ -12,6 +12,7 @@ use Klevu\IndexingCategories\Service\Provider\CategoryPathProviderInterface;
 use Klevu\Pipelines\Exception\Transformation\InvalidInputDataException;
 use Klevu\Pipelines\Model\ArgumentIterator;
 use Klevu\Pipelines\Transformer\TransformerInterface;
+use Magento\Catalog\Api\Data\CategoryInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 
 class ToCategoryPath implements TransformerInterface
@@ -48,17 +49,17 @@ class ToCategoryPath implements TransformerInterface
             return null;
         }
 
-        if (!is_numeric($data)) {
+        if (!($data instanceof CategoryInterface)) {
             throw new InvalidInputDataException(
                 transformerName: $this::class,
-                expectedType: 'numeric-string|int|float',
+                expectedType: CategoryInterface::class,
                 arguments: $arguments,
                 data: $data,
             );
         }
 
-        return $this->categoryPathProvider->getForCategoryId(
-            categoryId: (int)$data,
+        return $this->categoryPathProvider->getForCategory(
+            category: $data,
         );
     }
 }
