@@ -84,20 +84,30 @@ class CategoryPathProviderTest extends TestCase
     public function testGetForCategory_ReturnsString(): void
     {
         $this->createStore();
-        $storeFixture = $this->storeFixturesPool->get('test_store');
-        $scopeProvider = $this->objectManager->get(ScopeProviderInterface::class);
-        $scopeProvider->setCurrentScope($storeFixture->get());
+        $storeFixture1 = $this->storeFixturesPool->get('test_store');
+
+        $this->createStore([
+            'key' => 'test_store_2',
+            'code' => 'klevu_test_store_2',
+        ]);
+        $storeFixture2 = $this->storeFixturesPool->get('test_store_2');
 
         $this->createCategory([
             'key' => 'top_cat',
             'name' => 'Top Category',
             'is_active' => false,
             'stores' => [
-                $storeFixture->getId() => [
-                    'name' => 'Other Top Category',
+                $storeFixture1->getId() => [
+                    'name' => 'First Store Top Category',
                     'is_active' => true,
-                    'description' => 'Other Top Category Description',
-                    'url_key' => 'other-top-category-url',
+                    'description' => 'First Store Top Category Description',
+                    'url_key' => 'first-top-category-url',
+                ],
+                $storeFixture2->getId() => [
+                    'name' => 'Second Store Top Category',
+                    'is_active' => true,
+                    'description' => 'Second Store Top Category Description',
+                    'url_key' => 'second-top-category-url',
                 ],
             ],
         ]);
@@ -108,11 +118,17 @@ class CategoryPathProviderTest extends TestCase
             'parent' => $topCategoryFixture,
             'is_active' => false,
             'stores' => [
-                $storeFixture->getId() => [
-                    'name' => 'Other Test Category',
+                $storeFixture1->getId() => [
+                    'name' => 'First Store Test Category',
                     'is_active' => true,
-                    'description' => 'Other Category Description',
-                    'url_key' => 'other-category-url',
+                    'description' => 'First Store Category Description',
+                    'url_key' => 'first-category-url',
+                ],
+                $storeFixture2->getId() => [
+                    'name' => 'Second Store Test Category',
+                    'is_active' => true,
+                    'description' => 'Second Store Category Description',
+                    'url_key' => 'second-category-url',
                 ],
             ],
         ]);
@@ -123,30 +139,50 @@ class CategoryPathProviderTest extends TestCase
             'is_active' => false,
             'parent' => $categoryFixture,
             'stores' => [
-                $storeFixture->getId() => [
-                    'name' => 'Other Bottom Category',
+                $storeFixture1->getId() => [
+                    'name' => 'First Store Bottom Category',
                     'is_active' => true,
-                    'description' => 'Other Bottom Category Description',
-                    'url_key' => 'other-bottom-category-url',
+                    'description' => 'First Store Bottom Category Description',
+                    'url_key' => 'first-bottom-category-url',
+                ],
+                $storeFixture2->getId() => [
+                    'name' => 'Second Store Bottom Category',
+                    'is_active' => true,
+                    'description' => 'Second Store Bottom Category Description',
+                    'url_key' => 'second-bottom-category-url',
                 ],
             ],
         ]);
         $bottomCategoryFixture = $this->categoryFixturePool->get('bottom_category');
 
         $categoryRepository = $this->objectManager->get(CategoryRepositoryInterface::class);
-        $category = $categoryRepository->get(
-            categoryId:(int)$bottomCategoryFixture->getId(),
-            storeId: (int)$storeFixture->getId(),
-        );
 
         $provider = $this->instantiateTestObject();
-        $result = $provider->getForCategory(
-            category: $category,
+
+        $category1 = $categoryRepository->get(
+            categoryId:(int)$bottomCategoryFixture->getId(),
+            storeId: (int)$storeFixture1->getId(),
+        );
+        $resultStore1 = $provider->getForCategory(
+            category: $category1,
+            storeId: (int)$storeFixture1->getId(),
+        );
+        $this->assertSame(
+            expected: 'First Store Top Category;First Store Test Category;First Store Bottom Category',
+            actual: $resultStore1,
         );
 
+        $category2 = $categoryRepository->get(
+            categoryId:(int)$bottomCategoryFixture->getId(),
+            storeId: (int)$storeFixture2->getId(),
+        );
+        $resultStore2 = $provider->getForCategory(
+            category: $category2,
+            storeId: (int)$storeFixture2->getId(),
+        );
         $this->assertSame(
-            expected: 'Other Top Category;Other Test Category;Other Bottom Category',
-            actual: $result,
+            expected: 'Second Store Top Category;Second Store Test Category;Second Store Bottom Category',
+            actual: $resultStore2,
         );
     }
 
@@ -229,20 +265,30 @@ class CategoryPathProviderTest extends TestCase
     public function testGetForCategoryId_ReturnsString(): void
     {
         $this->createStore();
-        $storeFixture = $this->storeFixturesPool->get('test_store');
-        $scopeProvider = $this->objectManager->get(ScopeProviderInterface::class);
-        $scopeProvider->setCurrentScope($storeFixture->get());
+        $storeFixture1 = $this->storeFixturesPool->get('test_store');
+
+        $this->createStore([
+            'key' => 'test_store_2',
+            'code' => 'klevu_test_store_2',
+        ]);
+        $storeFixture2 = $this->storeFixturesPool->get('test_store_2');
 
         $this->createCategory([
             'key' => 'top_cat',
             'name' => 'Top Category',
             'is_active' => false,
             'stores' => [
-                $storeFixture->getId() => [
-                    'name' => 'Other Top Category',
+                $storeFixture1->getId() => [
+                    'name' => 'First Store Top Category',
                     'is_active' => true,
-                    'description' => 'Other Top Category Description',
-                    'url_key' => 'other-top-category-url',
+                    'description' => 'First Store Top Category Description',
+                    'url_key' => 'first-top-category-url',
+                ],
+                $storeFixture2->getId() => [
+                    'name' => 'Second Store Top Category',
+                    'is_active' => true,
+                    'description' => 'Second Store Top Category Description',
+                    'url_key' => 'second-top-category-url',
                 ],
             ],
         ]);
@@ -253,11 +299,17 @@ class CategoryPathProviderTest extends TestCase
             'parent' => $topCategoryFixture,
             'is_active' => false,
             'stores' => [
-                $storeFixture->getId() => [
-                    'name' => 'Other Test Category',
+                $storeFixture1->getId() => [
+                    'name' => 'First Store Test Category',
                     'is_active' => true,
-                    'description' => 'Other Category Description',
-                    'url_key' => 'other-category-url',
+                    'description' => 'First Store Category Description',
+                    'url_key' => 'first-category-url',
+                ],
+                $storeFixture2->getId() => [
+                    'name' => 'Second Store Test Category',
+                    'is_active' => true,
+                    'description' => 'Second Store Category Description',
+                    'url_key' => 'second-category-url',
                 ],
             ],
         ]);
@@ -268,25 +320,40 @@ class CategoryPathProviderTest extends TestCase
             'is_active' => false,
             'parent' => $categoryFixture,
             'stores' => [
-                $storeFixture->getId() => [
-                    'name' => 'Other Bottom Category',
+                $storeFixture1->getId() => [
+                    'name' => 'First Store Bottom Category',
                     'is_active' => true,
-                    'description' => 'Other Bottom Category Description',
-                    'url_key' => 'other-bottom-category-url',
+                    'description' => 'First Store Bottom Category Description',
+                    'url_key' => 'first-bottom-category-url',
+                ],
+                $storeFixture2->getId() => [
+                    'name' => 'Second Store Bottom Category',
+                    'is_active' => true,
+                    'description' => 'Second Store Bottom Category Description',
+                    'url_key' => 'second-bottom-category-url',
                 ],
             ],
         ]);
         $bottomCategoryFixture = $this->categoryFixturePool->get('bottom_category');
 
         $provider = $this->instantiateTestObject();
-        $result = $provider->getForCategoryId(
+
+        $resultStore1 = $provider->getForCategoryId(
             categoryId: (int)$bottomCategoryFixture->getId(),
-            storeId: (int)$storeFixture->getId(),
+            storeId: (int)$storeFixture1->getId(),
+        );
+        $this->assertSame(
+            expected: 'First Store Top Category;First Store Test Category;First Store Bottom Category',
+            actual: $resultStore1,
         );
 
+        $resultStore2 = $provider->getForCategoryId(
+            categoryId: (int)$bottomCategoryFixture->getId(),
+            storeId: (int)$storeFixture2->getId(),
+        );
         $this->assertSame(
-            expected: 'Other Top Category;Other Test Category;Other Bottom Category',
-            actual: $result,
+            expected: 'Second Store Top Category;Second Store Test Category;Second Store Bottom Category',
+            actual: $resultStore2,
         );
     }
 

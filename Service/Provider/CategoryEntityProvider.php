@@ -19,6 +19,7 @@ use Magento\Catalog\Model\Category;
 use Magento\Eav\Model\Entity;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\DB\Select;
+use Magento\Framework\DB\Sql\ExpressionFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Api\Data\StoreInterface;
@@ -53,6 +54,10 @@ class CategoryEntityProvider implements EntityProviderInterface
      * @var int|null
      */
     private readonly ?int $batchSize;
+    /**
+     * @var ExpressionFactory
+     */
+    private readonly ExpressionFactory $expressionFactory;
 
     /**
      * @param CategoryCollectionFactory $categoryCollectionFactory
@@ -73,6 +78,7 @@ class CategoryEntityProvider implements EntityProviderInterface
         string $entitySubtype = self::ENTITY_SUBTYPE_CATEGORY,
         ?int $batchSize = null,
         ?ValidatorInterface $batchSizeValidator = null,
+        ?ExpressionFactory $expressionFactory = null,
     ) {
         $this->categoryCollectionFactory = $categoryCollectionFactory;
         $this->syncEnabledProvider = $syncEnabledProvider;
@@ -91,6 +97,8 @@ class CategoryEntityProvider implements EntityProviderInterface
             );
         }
         $this->batchSize = $batchSize;
+        $this->expressionFactory = $expressionFactory
+            ?: $objectManager->get(ExpressionFactory::class);
     }
 
     /**
@@ -166,6 +174,14 @@ class CategoryEntityProvider implements EntityProviderInterface
             $group = $this->groupRepository->get(id: $store->getStoreGroupId());
             $categoryCollection->addPathsFilter(
                 paths: [Category::TREE_ROOT_ID . '/' . $group->getRootCategoryId() . '/'],
+            );
+            $select = $categoryCollection->getSelect();
+            $select->columns(
+                cols: [
+                    'store_id' => $this->expressionFactory->create([
+                        'expression' => $store->getId(),
+                    ]),
+                ],
             );
         }
         if ($entityIds) {

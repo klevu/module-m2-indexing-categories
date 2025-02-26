@@ -100,6 +100,7 @@ class EntityIndexerServiceDeleteTest extends TestCase
         $this->cleanIndexingEntities(apiKey: $apiKey);
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::TARGET_ID => $categoryFixture->getId(),
             IndexingEntity::NEXT_ACTION => Actions::DELETE,
@@ -114,7 +115,8 @@ class EntityIndexerServiceDeleteTest extends TestCase
         $this->mockBatchServiceDeleteApiCall(isCalled: false);
 
         $service = $this->instantiateTestObject();
-        $service->execute(apiKey: $apiKey);
+        $results = $service->execute(apiKey: $apiKey);
+        $results->current();
 
         $this->cleanIndexingEntities(apiKey: $apiKey);
     }
@@ -143,6 +145,7 @@ class EntityIndexerServiceDeleteTest extends TestCase
         $this->cleanIndexingEntities(apiKey: $apiKey);
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::TARGET_ID => $categoryFixture->getId(),
             IndexingEntity::NEXT_ACTION => Actions::DELETE,
@@ -157,12 +160,13 @@ class EntityIndexerServiceDeleteTest extends TestCase
         $this->mockBatchServiceDeleteApiCall(isCalled: false);
 
         $service = $this->instantiateTestObject();
-        $service->execute(apiKey: $apiKey);
+        $results = $service->execute(apiKey: $apiKey);
+        $results->current();
 
         $this->cleanIndexingEntities(apiKey: $apiKey);
     }
 
-    public function testExecute_ReturnsNoop_WhenNoCategoriesToDelete(): void
+    public function testExecute_ReturnsNull_WhenNoCategoriesToDelete(): void
     {
         $apiKey = 'klevu-js-key';
 
@@ -179,13 +183,10 @@ class EntityIndexerServiceDeleteTest extends TestCase
         $this->mockBatchServiceDeleteApiCall(isCalled: false);
 
         $service = $this->instantiateTestObject();
-        $result = $service->execute(apiKey: $apiKey);
+        $results = $service->execute(apiKey: $apiKey);
+        $result = $results->current();
 
-        $this->assertSame(
-            expected: IndexerResultStatuses::NOOP,
-            actual: $result->getStatus(),
-            message: 'Status: ' . $result->getStatus()->name,
-        );
+        $this->assertNull(actual: $result);
 
         $this->cleanIndexingEntities(apiKey: $apiKey);
     }
@@ -228,6 +229,7 @@ class EntityIndexerServiceDeleteTest extends TestCase
         $this->cleanIndexingEntities(apiKey: $apiKey);
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::TARGET_ID => $categoryFixture->getId(),
             IndexingEntity::NEXT_ACTION => Actions::DELETE,
@@ -237,13 +239,10 @@ class EntityIndexerServiceDeleteTest extends TestCase
         $this->mockBatchServiceDeleteApiCall(isCalled: false);
 
         $service = $this->instantiateTestObject();
-        $result = $service->execute(apiKey: $apiKey);
+        $results = $service->execute(apiKey: $apiKey);
+        $result = $results->current();
 
-        $this->assertSame(
-            expected: IndexerResultStatuses::NOOP,
-            actual: $result->getStatus(),
-            message: 'Status: ' . $result->getStatus()->name,
-        );
+        $this->assertNull(actual: $result);
 
         $this->cleanIndexingEntities(apiKey: $apiKey);
     }
@@ -283,6 +282,7 @@ class EntityIndexerServiceDeleteTest extends TestCase
         $this->cleanIndexingEntities(apiKey: $apiKey);
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::TARGET_ID => $categoryFixture->getId(),
             IndexingEntity::NEXT_ACTION => Actions::DELETE,
@@ -292,7 +292,8 @@ class EntityIndexerServiceDeleteTest extends TestCase
         $this->mockBatchServiceDeleteApiCall(isCalled: true, isSuccessful: true);
 
         $service = $this->instantiateTestObject();
-        $result = $service->execute(apiKey: $apiKey);
+        $results = $service->execute(apiKey: $apiKey);
+        $result = $results->current();
 
         $this->assertSame(
             expected: IndexerResultStatuses::SUCCESS,

@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace Klevu\IndexingCategories\Pipeline\Transformer;
 
+use Klevu\IndexingCategories\Pipeline\Provider\Argument\Transformer\ToCategoryPathArgumentProvider;
 use Klevu\IndexingCategories\Service\Provider\CategoryPathProviderInterface;
 use Klevu\Pipelines\Exception\Transformation\InvalidInputDataException;
 use Klevu\Pipelines\Model\ArgumentIterator;
@@ -21,14 +22,21 @@ class ToCategoryPath implements TransformerInterface
      * @var CategoryPathProviderInterface
      */
     private readonly CategoryPathProviderInterface $categoryPathProvider;
+    /**
+     * @var ToCategoryPathArgumentProvider
+     */
+    private readonly ToCategoryPathArgumentProvider $argumentProvider;
 
     /**
      * @param CategoryPathProviderInterface $categoryPathProvider
+     * @param ToCategoryPathArgumentProvider $argumentProvider
      */
     public function __construct(
         CategoryPathProviderInterface $categoryPathProvider,
+        ToCategoryPathArgumentProvider $argumentProvider,
     ) {
         $this->categoryPathProvider = $categoryPathProvider;
+        $this->argumentProvider = $argumentProvider;
     }
 
     /**
@@ -48,7 +56,6 @@ class ToCategoryPath implements TransformerInterface
         if (null === $data) {
             return null;
         }
-
         if (!($data instanceof CategoryInterface)) {
             throw new InvalidInputDataException(
                 transformerName: $this::class,
@@ -57,9 +64,15 @@ class ToCategoryPath implements TransformerInterface
                 data: $data,
             );
         }
+        $storeIdArgumentValue = $this->argumentProvider->getStoreIdArgumentValue(
+            arguments: $arguments,
+            extractionPayload: $data,
+            extractionContext: $context,
+        );
 
         return $this->categoryPathProvider->getForCategory(
             category: $data,
+            storeId: $storeIdArgumentValue,
         );
     }
 }

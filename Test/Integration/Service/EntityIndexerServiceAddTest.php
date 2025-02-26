@@ -101,6 +101,7 @@ class EntityIndexerServiceAddTest extends TestCase
         $this->cleanIndexingEntities(apiKey: $apiKey);
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::TARGET_ID => $categoryFixture->getId(),
             IndexingEntity::NEXT_ACTION => Actions::ADD,
@@ -115,7 +116,8 @@ class EntityIndexerServiceAddTest extends TestCase
         $this->mockBatchServicePutApiCall(isCalled: false);
 
         $service = $this->instantiateTestObject();
-        $service->execute(apiKey: $apiKey);
+        $results = $service->execute(apiKey: $apiKey);
+        $results->current();
 
         $this->cleanIndexingEntities(apiKey: $apiKey);
     }
@@ -144,6 +146,7 @@ class EntityIndexerServiceAddTest extends TestCase
         $this->cleanIndexingEntities(apiKey: $apiKey);
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::TARGET_ID => $categoryFixture->getId(),
             IndexingEntity::NEXT_ACTION => Actions::ADD,
@@ -158,15 +161,15 @@ class EntityIndexerServiceAddTest extends TestCase
         $this->mockBatchServicePutApiCall(isCalled: false);
 
         $service = $this->instantiateTestObject();
-        $service->execute(apiKey: $apiKey);
+        $results = $service->execute(apiKey: $apiKey);
+        $results->current();
 
         $this->cleanIndexingEntities(apiKey: $apiKey);
     }
 
-    public function testExecute_ReturnsNoop_WhenNoCategoriesToAdd(): void
+    public function testExecute_ReturnsNull_WhenNoCategoriesToAdd(): void
     {
         $apiKey = 'klevu-js-key';
-        $this->cleanIndexingEntities(apiKey: $apiKey);
 
         $this->createStore();
         $storeFixture = $this->storeFixturesPool->get('test_store');
@@ -178,24 +181,22 @@ class EntityIndexerServiceAddTest extends TestCase
             restAuthKey: 'klevu-rest-key',
         );
 
+        $this->cleanIndexingEntities(apiKey: $apiKey);
+
         $this->mockBatchServicePutApiCall(isCalled: false);
 
         $service = $this->instantiateTestObject();
-        $result = $service->execute(apiKey: $apiKey);
+        $results = $service->execute(apiKey: $apiKey);
+        $result = $results->current();
 
-        $this->assertSame(
-            expected: IndexerResultStatuses::NOOP,
-            actual: $result->getStatus(),
-            message: 'Status: ' . $result->getStatus()->name,
-        );
+        $this->assertNull(actual: $result);
 
         $this->cleanIndexingEntities(apiKey: $apiKey);
     }
 
-    public function testExecute_ReturnsNoop_WhenCategorySyncDisabled(): void
+    public function testExecute_ReturnsNull_WhenCategorySyncDisabled(): void
     {
         $apiKey = 'klevu-js-key';
-        $this->cleanIndexingEntities(apiKey: $apiKey);
 
         $this->createStore();
         $storeFixture = $this->storeFixturesPool->get('test_store');
@@ -231,6 +232,7 @@ class EntityIndexerServiceAddTest extends TestCase
         $this->cleanIndexingEntities(apiKey: $apiKey);
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::TARGET_ID => $categoryFixture->getId(),
             IndexingEntity::NEXT_ACTION => Actions::ADD,
@@ -240,13 +242,10 @@ class EntityIndexerServiceAddTest extends TestCase
         $this->mockBatchServiceDeleteApiCall(isCalled: false);
 
         $service = $this->instantiateTestObject();
-        $result = $service->execute(apiKey: $apiKey);
+        $results = $service->execute(apiKey: $apiKey);
+        $result = $results->current();
 
-        $this->assertSame(
-            expected: IndexerResultStatuses::NOOP,
-            actual: $result->getStatus(),
-            message: 'Status: ' . $result->getStatus()->name,
-        );
+        $this->assertNull(actual: $result);
 
         $this->cleanIndexingEntities(apiKey: $apiKey);
     }
@@ -306,12 +305,14 @@ class EntityIndexerServiceAddTest extends TestCase
         $this->cleanIndexingEntities(apiKey: $apiKey);
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::TARGET_ID => $topCategory->getParentId(), // Root Category, should not be synced
             IndexingEntity::NEXT_ACTION => Actions::ADD,
         ]);
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::TARGET_ID => $categoryFixture->getId(),
             IndexingEntity::NEXT_ACTION => Actions::ADD,
@@ -321,7 +322,8 @@ class EntityIndexerServiceAddTest extends TestCase
         $this->mockBatchServiceDeleteApiCall(isCalled: false);
 
         $service = $this->instantiateTestObject();
-        $result = $service->execute(apiKey: $apiKey);
+        $results = $service->execute(apiKey: $apiKey);
+        $result = $results->current();
 
         $this->assertSame(
             expected: IndexerResultStatuses::SUCCESS,

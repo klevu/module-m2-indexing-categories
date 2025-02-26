@@ -33,10 +33,16 @@
             <argument name="logger" xsi:type="object">Klevu\Indexing\Logger\Logger</argument>
             <argument name="syncEnabledProvider"
                       xsi:type="object">Klevu\IndexingCategories\Service\Provider\SyncEnabledProvider</argument>
-            <argument name="batchSize" xsi:type="number">2500</argument>
             <argument name="batchSizeValidator" xsi:type="object">Klevu\Indexing\Validator\BatchSizeValidator</argument>
         </arguments>
     </type>
+
+    <virtualType name="Klevu\IndexingCategories\Service\Provider\CategoryEntityProvider\Batched"
+                 type="Klevu\IndexingCategories\Service\Provider\CategoryEntityProvider">
+        <arguments>
+            <argument name="batchSize" xsi:type="const">Klevu\Indexing\Constants::DEFAULT_INDEXING_BATCH_SIZE</argument>
+        </arguments>
+    </virtualType>
 
     <virtualType name="Klevu\IndexingCategories\Service\Determiner\IsIndexableDeterminer"
                  type="Klevu\Indexing\Service\Determiner\IsIndexableDeterminer">
@@ -58,6 +64,29 @@
         </arguments>
     </virtualType>
 
+    <virtualType name="Klevu\IndexingCategories\Service\Provider\EntityProviderProvider\Batched"
+                 type="Klevu\Indexing\Service\Provider\EntityProviderProvider">
+        <arguments>
+            <argument name="entityProviders" xsi:type="array">
+                <item name="categories"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\CategoryEntityProvider\Batched</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Klevu\IndexingCategories\Service\Provider\EntityDiscoveryProvider\Batched"
+                 type="Klevu\Indexing\Service\Provider\EntityDiscoveryProvider">
+        <arguments>
+            <argument name="entityType" xsi:type="string">KLEVU_CATEGORY</argument>
+            <argument name="entityProviderProvider"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\EntityProviderProvider\Batched</argument>
+            <argument name="isIndexableDeterminer"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Determiner\IsIndexableDeterminer</argument>
+            <!-- Categories can be enabled at store scope, therefore this flag is required -->
+            <argument name="isCheckIsIndexableAtStoreScope" xsi:type="boolean">true</argument>
+        </arguments>
+    </virtualType>
+
     <virtualType name="Klevu\IndexingCategories\Service\Provider\EntityDiscoveryProvider"
                  type="Klevu\Indexing\Service\Provider\EntityDiscoveryProvider">
         <arguments>
@@ -75,12 +104,30 @@
         <arguments>
             <argument name="discoveryProviders" xsi:type="array">
                 <item name="KLEVU_CATEGORY"
-                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\EntityDiscoveryProvider</item>
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\EntityDiscoveryProvider\Batched</item>
             </argument>
         </arguments>
     </type>
 
     <type name="Klevu\Indexing\Service\FilterEntitiesToDeleteService">
+        <arguments>
+            <argument name="discoveryProviders" xsi:type="array">
+                <item name="KLEVU_CATEGORY"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\EntityDiscoveryProvider</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Klevu\Indexing\Service\FilterEntitiesToSetToIndexableService">
+        <arguments>
+            <argument name="discoveryProviders" xsi:type="array">
+                <item name="KLEVU_CATEGORY"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\EntityDiscoveryProvider</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Klevu\Indexing\Service\FilterEntitiesToSetToNotIndexableService">
         <arguments>
             <argument name="discoveryProviders" xsi:type="array">
                 <item name="KLEVU_CATEGORY"
@@ -367,12 +414,15 @@
         <arguments>
             <argument name="attributesIndexerServices" xsi:type="array">
                 <item name="KLEVU_CATEGORY" xsi:type="array">
-                    <item name="add"
-                          xsi:type="object">Klevu\IndexingCategories\Service\AttributeIndexerService\Add</item>
                     <item name="delete"
+                          sortOrder="10"
                           xsi:type="object">Klevu\IndexingCategories\Service\AttributeIndexerService\Delete</item>
                     <item name="update"
+                          sortOrder="20"
                           xsi:type="object">Klevu\IndexingCategories\Service\AttributeIndexerService\Update</item>
+                    <item name="add"
+                          sortOrder="30"
+                          xsi:type="object">Klevu\IndexingCategories\Service\AttributeIndexerService\Add</item>
                 </item>
             </argument>
         </arguments>
@@ -605,12 +655,15 @@
         <arguments>
             <argument name="entityIndexerServices" xsi:type="array">
                 <item name="KLEVU_CATEGORY" xsi:type="array">
-                    <item name="add"
-                          xsi:type="object">Klevu\IndexingCategories\Service\EntityIndexerService\Add</item>
                     <item name="delete"
+                          sortOrder="10"
                           xsi:type="object">Klevu\IndexingCategories\Service\EntityIndexerService\Delete</item>
                     <item name="update"
+                          sortOrder="20"
                           xsi:type="object">Klevu\IndexingCategories\Service\EntityIndexerService\Update</item>
+                    <item name="add"
+                          sortOrder="30"
+                          xsi:type="object">Klevu\IndexingCategories\Service\EntityIndexerService\Add</item>
                 </item>
             </argument>
         </arguments>
@@ -689,4 +742,17 @@
             </argument>
         </arguments>
     </type>
+
+    <type name="Klevu\IndexingCategories\Observer\ChangeRootCategoryObserver">
+        <arguments>
+            <argument name="logger" xsi:type="object">Klevu\Indexing\Logger\Logger</argument>
+        </arguments>
+    </type>
+
+    <type name="Klevu\IndexingCategories\Pipeline\Provider\Argument\Transformer\ToCategoryPathArgumentProvider">
+        <arguments>
+            <argument name="argumentProvider" xsi:type="object">Klevu\Pipelines\Provider\ArgumentProvider</argument>
+        </arguments>
+    </type>
+
 </config>
