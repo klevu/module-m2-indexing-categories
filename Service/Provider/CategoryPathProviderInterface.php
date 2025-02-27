@@ -17,6 +17,7 @@ interface CategoryPathProviderInterface
      * @param CategoryInterface $category
      * @param string $curPath
      * @param int[]|null $excludeCategoryIds
+     * @param int|null $storeId
      *
      * @return string
      * @throws NoSuchEntityException
@@ -25,6 +26,7 @@ interface CategoryPathProviderInterface
         CategoryInterface $category,
         string $curPath = '',
         ?array $excludeCategoryIds = null,
+        ?int $storeId = null,
     ): string;
 
     /**

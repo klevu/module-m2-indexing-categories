@@ -68,7 +68,11 @@ class CategoryPathProvider implements CategoryPathProviderInterface
         CategoryInterface $category,
         string $curPath = '',
         ?array $excludeCategoryIds = null,
+        ?int $storeId = null,
     ): string {
+        if (null === $storeId) {
+            $storeId = $this->getStoreId();
+        }
         if (null === $excludeCategoryIds) {
             $categoryPath = $category->getPath();
             $categoryPathArray = explode(separator: static::CATEGORY_PATH_SEPARATOR_MAGENTO, string: $categoryPath);
@@ -77,20 +81,21 @@ class CategoryPathProvider implements CategoryPathProviderInterface
                 array: array_slice(array: $categoryPathArray, offset: 0, length: 2),
             );
         }
-        if (in_array((int)$category->getId(), $excludeCategoryIds, true)) {
+        if (in_array(needle: (int)$category->getId(), haystack: $excludeCategoryIds, strict: true)) {
             return $curPath;
         }
         if ($curPath) {
             $curPath = static::CATEGORY_PATH_SEPARATOR_KLEVU . $curPath;
         }
         $curPath = $category->getName() . $curPath;
-        $parentCategory = $this->getParentCategory($category);
+        $parentCategory = $this->getParentCategory(category: $category, storeId: $storeId);
 
         return $parentCategory
             ? $this->getForCategory(
                 category: $parentCategory,
                 curPath: $curPath,
                 excludeCategoryIds: $excludeCategoryIds,
+                storeId: $storeId,
             )
             : $curPath;
     }
@@ -114,28 +119,33 @@ class CategoryPathProvider implements CategoryPathProviderInterface
 
         return $this->getForCategory(
             category: $category,
+            storeId: $storeId,
         );
     }
 
     /**
      * @param CategoryInterface $category
+     * @param int|null $storeId
      *
      * @return CategoryInterface|null
      * @throws NoSuchEntityException
      */
     private function getParentCategory(
         CategoryInterface $category,
+        ?int $storeId = null,
     ): ?CategoryInterface {
         if (!$category->getParentId()) {
             return null;
         }
-        $storeId = $this->getStoreId();
+        if (null === $storeId) {
+            $storeId = $this->getStoreId();
+        }
         $return = $this->categoryRepository->get(
             categoryId: (int)$category->getParentId(),
             storeId: $storeId,
         );
 
-        return ((int)$return->getId() !== $this->getRootCategory($storeId))
+        return ((int)$return->getId() !== $this->getRootCategory(storeId: $storeId))
             ? $return
             : null;
     }

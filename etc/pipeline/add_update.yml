@@ -3,7 +3,7 @@ stages:
   logStart:
     pipeline: Indexing\Stage\Log
     args:
-      message: "Start Add Categories Pipeline"
+      message: "Start Add/Update Categories Pipeline"
   iterateIndexingRecordsBatch:
     pipeline: Pipeline\Iterate # LOOP OVER ALL PROVIDED BATCHES
     args:

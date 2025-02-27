@@ -80,10 +80,10 @@ class ChangeRootCategoryObserverTest extends TestCase
     {
         parent::tearDown();
 
+        $this->categoryFixturePool->rollback();
         $this->storeFixturesPool->rollback();
         $this->storeGroupFixturesPool->rollback();
         $this->websiteFixturesPool->rollback();
-        $this->categoryFixturePool->rollback();
     }
 
     public function testObserver_IsConfigured(): void
@@ -322,6 +322,12 @@ class ChangeRootCategoryObserverTest extends TestCase
             message: 'Expected ' . Actions::ADD->value
                 . ', received ' . $newChildIndexingEntity->getNextAction()->value,
         );
+
+        // revert to original store category before rolling back
+        $storeGroupResourceModel = $this->objectManager->get(GroupResourceModel::class);
+        $storeGroupResourceModel->load($storeGroup, $storeGroupId);
+        $storeGroup->setRootCategoryId(2);
+        $storeGroupResourceModel->save($storeGroup);
 
         $this->cleanIndexingEntities($apiKey);
     }

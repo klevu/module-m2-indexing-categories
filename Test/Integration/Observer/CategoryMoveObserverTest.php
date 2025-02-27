@@ -136,6 +136,7 @@ class CategoryMoveObserverTest extends TestCase
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ID => $origParentCategoryFixture->getId(),
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::NEXT_ACTION => Actions::NO_ACTION,
             IndexingEntity::LAST_ACTION => Actions::ADD,
@@ -145,6 +146,7 @@ class CategoryMoveObserverTest extends TestCase
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ID => $childCategoryFixture->getId(),
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::NEXT_ACTION => Actions::NO_ACTION,
             IndexingEntity::LAST_ACTION => Actions::ADD,
@@ -154,6 +156,7 @@ class CategoryMoveObserverTest extends TestCase
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ID => $newParentCategoryFixture->getId(),
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::NEXT_ACTION => Actions::NO_ACTION,
             IndexingEntity::LAST_ACTION => Actions::ADD,
@@ -184,7 +187,15 @@ class CategoryMoveObserverTest extends TestCase
         );
         $origParent = array_shift($origParentArray);
         $this->assertInstanceOf(expected: IndexingEntityInterface::class, actual: $origParent);
-        $this->assertSame(expected: Actions::UPDATE, actual: $origParent->getNextAction());
+        $this->assertSame(
+            expected: Actions::UPDATE,
+            actual: $origParent->getNextAction(),
+            message: sprintf(
+                'Expected: %s, Received %s',
+                Actions::UPDATE->value,
+                $origParent->getNextAction()->value,
+            ),
+        );
         $this->assertTrue(condition: $origParent->getIsIndexable());
 
         /** @var IndexingEntity[] $newParentArray */
@@ -196,7 +207,15 @@ class CategoryMoveObserverTest extends TestCase
         );
         $newParent = array_shift($newParentArray);
         $this->assertInstanceOf(expected: IndexingEntityInterface::class, actual: $newParent);
-        $this->assertSame(expected: Actions::UPDATE, actual: $newParent->getNextAction());
+        $this->assertSame(
+            expected: Actions::UPDATE,
+            actual: $newParent->getNextAction(),
+            message: sprintf(
+                'Expected: %s, Received %s',
+                Actions::UPDATE->value,
+                $newParent->getNextAction()->value,
+            ),
+        );
         $this->assertTrue(condition: $newParent->getIsIndexable());
 
         $childCategory = $childCategoryFixture->getCategory();
@@ -291,6 +310,7 @@ class CategoryMoveObserverTest extends TestCase
         $indexingEntity->setTargetId((int)$data[IndexingEntity::TARGET_ID]);
         $indexingEntity->setTargetParentId($data[IndexingEntity::TARGET_PARENT_ID] ?? null);
         $indexingEntity->setTargetEntityType($data[IndexingEntity::TARGET_ENTITY_TYPE] ?? 'KLEVU_CATEGORY');
+        $indexingEntity->setTargetEntitySubType($data[IndexingEntity::TARGET_ENTITY_SUBTYPE] ?? 'category');
         $indexingEntity->setApiKey($data[IndexingEntity::API_KEY] ?? 'klevu-js-api-key');
         $indexingEntity->setNextAction($data[IndexingEntity::NEXT_ACTION] ?? Actions::NO_ACTION);
         $indexingEntity->setLastAction($data[IndexingEntity::LAST_ACTION] ?? Actions::NO_ACTION);

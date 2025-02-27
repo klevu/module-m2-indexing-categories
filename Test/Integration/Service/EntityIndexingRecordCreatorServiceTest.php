@@ -61,6 +61,9 @@ class EntityIndexingRecordCreatorServiceTest extends TestCase
         $this->categoryFixturePool->rollback();
     }
 
+    /**
+     * @magentoAppIsolation enabled
+     */
     public function testExecute_ThrowsException_WhenIncorrectEntityTypeProvided(): void
     {
         $this->createPage();
@@ -84,6 +87,9 @@ class EntityIndexingRecordCreatorServiceTest extends TestCase
         );
     }
 
+    /**
+     * @magentoAppIsolation enabled
+     */
     public function testExecute_ThrowsException_WhenIncorrectParentEntityTypeProvided(): void
     {
         $this->createCategory();
@@ -112,6 +118,9 @@ class EntityIndexingRecordCreatorServiceTest extends TestCase
         );
     }
 
+    /**
+     * @magentoAppIsolation enabled
+     */
     public function testExecute_ReturnsIndexingRecord_WithEntity(): void
     {
         $this->createCategory();
@@ -136,6 +145,9 @@ class EntityIndexingRecordCreatorServiceTest extends TestCase
         );
     }
 
+    /**
+     * @magentoAppIsolation enabled
+     */
     public function testExecute_ReturnsIndexingRecord_WithAllData(): void
     {
         $this->createCategory([

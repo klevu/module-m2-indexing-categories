@@ -4,4 +4,4 @@ stages:
     args:
       extraction: currentCategory::
       transformations:
-        - ToCategoryPath
+        - ToCategoryPath($store::getForCurrentStore().store_id)

@@ -117,7 +117,16 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $category = $this->categoryFixturePool->get('test_category');
 
         $service = $this->instantiateTestObject();
-        $result = $service->execute(entityTypes: ['KLEVU_CATEGORY'], apiKeys: [$apiKey]);
+        $resultGenerators = $service->execute(entityTypes: ['KLEVU_CATEGORY'], apiKeys: [$apiKey]);
+        $resultsArray = [];
+        foreach ($resultGenerators as $resultGenerator) {
+            $resultsArray[] = iterator_to_array($resultGenerator);
+        }
+        $results = array_filter(
+            array_merge(...$resultsArray),
+        );
+        $result = array_shift($results);
+
         $this->assertTrue($result->isSuccess());
 
         $indexingEntities = $this->getCategoryIndexingEntities(apiKey: $apiKey);
@@ -176,7 +185,16 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $category2 = $this->categoryFixturePool->get('test_category_2');
 
         $service = $this->instantiateTestObject();
-        $result = $service->execute(entityTypes: ['KLEVU_CATEGORY'], apiKeys: [$apiKey]);
+        $resultGenerators = $service->execute(entityTypes: ['KLEVU_CATEGORY'], apiKeys: [$apiKey]);
+        $resultsArray = [];
+        foreach ($resultGenerators as $resultGenerator) {
+            $resultsArray[] = iterator_to_array($resultGenerator);
+        }
+        $results = array_filter(
+            array_merge(...$resultsArray),
+        );
+        $result = array_shift($results);
+
         $this->assertTrue($result->isSuccess());
 
         $indexingEntities = $this->getCategoryIndexingEntities(apiKey: $apiKey);
@@ -257,7 +275,16 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $category2 = $this->categoryFixturePool->get('test_category_2');
 
         $service = $this->instantiateTestObject();
-        $result1 = $service->execute(entityTypes: ['KLEVU_CATEGORY'], apiKeys: [$apiKey1]);
+        $resultGenerators = $service->execute(entityTypes: ['KLEVU_CATEGORY'], apiKeys: [$apiKey1]);
+        $resultsArray = [];
+        foreach ($resultGenerators as $resultGenerator) {
+            $resultsArray[] = iterator_to_array($resultGenerator);
+        }
+        $results = array_filter(
+            array_merge(...$resultsArray),
+        );
+        $result1 = array_shift($results);
+
         $this->assertTrue($result1->isSuccess());
 
         $indexingEntities1 = $this->getCategoryIndexingEntities($apiKey1);
@@ -270,7 +297,16 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $this->assertAddIndexingEntity($indexingEntities1, $category2, $apiKey1, false);
         $this->cleanIndexingEntities(apiKey: $apiKey1);
 
-        $result2 = $service->execute(entityTypes: ['KLEVU_CATEGORY'], apiKeys: [$apiKey2]);
+        $resultGenerators2 = $service->execute(entityTypes: ['KLEVU_CATEGORY'], apiKeys: [$apiKey2]);
+        $resultsArray2 = [];
+        foreach ($resultGenerators2 as $resultGenerator) {
+            $resultsArray2[] = iterator_to_array($resultGenerator);
+        }
+        $results2 = array_filter(
+            array_merge(...$resultsArray2),
+        );
+        $result2 = array_shift($results2);
+
         $this->assertTrue($result2->isSuccess());
         $indexingEntities2 = $this->getCategoryIndexingEntities($apiKey2);
         $this->assertCount(
@@ -345,9 +381,18 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $this->cleanIndexingEntities(apiKey: $apiKey);
 
         $service = $this->instantiateTestObject();
-        $result1 = $service->execute(entityTypes: ['KLEVU_CATEGORY'], apiKeys: [$apiKey]);
+        $resultGenerators = $service->execute(entityTypes: ['KLEVU_CATEGORY'], apiKeys: [$apiKey]);
+        $resultsArray = [];
+        foreach ($resultGenerators as $resultGenerator) {
+            $resultsArray[] = iterator_to_array($resultGenerator);
+        }
+        $results = array_filter(
+            array_merge(...$resultsArray),
+        );
+        $result = array_shift($results);
 
-        $this->assertTrue($result1->isSuccess());
+        $this->assertTrue($result->isSuccess());
+
         $indexingEntities1 = $this->getCategoryIndexingEntities($apiKey);
 
         $this->assertAddIndexingEntity($indexingEntities1, $category1, $apiKey, true);
@@ -389,6 +434,7 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $this->createIndexingEntity(data: [
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::TARGET_ID => (int)$category->getId(),
             IndexingEntity::IS_INDEXABLE => true,
             IndexingEntity::NEXT_ACTION => Actions::NO_ACTION,
@@ -397,9 +443,17 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         ]);
 
         $service = $this->instantiateTestObject();
-        $result1 = $service->execute(entityTypes: ['KLEVU_CATEGORY'], apiKeys: [$apiKey]);
+        $resultGenerators = $service->execute(entityTypes: ['KLEVU_CATEGORY'], apiKeys: [$apiKey]);
+        $resultsArray = [];
+        foreach ($resultGenerators as $resultGenerator) {
+            $resultsArray[] = iterator_to_array($resultGenerator);
+        }
+        $results = array_filter(
+            array_merge(...$resultsArray),
+        );
+        $result = array_shift($results);
 
-        $this->assertTrue($result1->isSuccess());
+        $this->assertTrue($result->isSuccess());
         $indexingEntities1 = $this->getCategoryIndexingEntities($apiKey);
         $this->assertCount(
             expectedCount: 1 + $categoryCollectionCount,
@@ -475,6 +529,7 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $this->createIndexingEntity(data: [
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::TARGET_ID => (int)$category1->getId(),
             IndexingEntity::IS_INDEXABLE => true,
             IndexingEntity::NEXT_ACTION => Actions::NO_ACTION,
@@ -485,6 +540,7 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $this->createIndexingEntity(data: [
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::TARGET_ID => (int)$category2->getId(),
             IndexingEntity::IS_INDEXABLE => true,
             IndexingEntity::NEXT_ACTION => Actions::NO_ACTION,
@@ -493,7 +549,16 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         ]);
 
         $service = $this->instantiateTestObject();
-        $result = $service->execute(entityTypes: ['KLEVU_CATEGORY'], apiKeys: [$apiKey]);
+        $resultGenerators = $service->execute(entityTypes: ['KLEVU_CATEGORY'], apiKeys: [$apiKey]);
+        $resultsArray = [];
+        foreach ($resultGenerators as $resultGenerator) {
+            $resultsArray[] = iterator_to_array($resultGenerator);
+        }
+        $results = array_filter(
+            array_merge(...$resultsArray),
+        );
+        $result = array_shift($results);
+
         $this->assertTrue($result->isSuccess());
 
         $indexingEntities = $this->getCategoryIndexingEntities($apiKey);
@@ -535,6 +600,7 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $this->createIndexingEntity(data: [
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::TARGET_ID => (int)$category->getId(),
             IndexingEntity::IS_INDEXABLE => true,
             IndexingEntity::NEXT_ACTION => Actions::ADD,
@@ -543,7 +609,15 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         ]);
 
         $service = $this->instantiateTestObject();
-        $result1 = $service->execute(entityTypes: ['KLEVU_CATEGORY'], apiKeys: [$apiKey]);
+        $resultGenerators = $service->execute(entityTypes: ['KLEVU_CATEGORY'], apiKeys: [$apiKey]);
+        $resultsArray = [];
+        foreach ($resultGenerators as $resultGenerator) {
+            $resultsArray[] = iterator_to_array($resultGenerator);
+        }
+        $results = array_filter(
+            array_merge(...$resultsArray),
+        );
+        $result1 = array_shift($results);
 
         $this->assertTrue($result1->isSuccess());
         $indexingEntities = $this->getCategoryIndexingEntities($apiKey);
@@ -651,6 +725,7 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $this->createIndexingEntity(data: [
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::TARGET_ID => (int)$category1->getId(),
             IndexingEntity::IS_INDEXABLE => true,
             IndexingEntity::NEXT_ACTION => Actions::ADD,
@@ -661,6 +736,7 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $this->createIndexingEntity(data: [
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::TARGET_ID => (int)$category2->getId(),
             IndexingEntity::IS_INDEXABLE => true,
             IndexingEntity::NEXT_ACTION => Actions::ADD,
@@ -669,7 +745,16 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         ]);
 
         $service = $this->instantiateTestObject();
-        $result = $service->execute(entityTypes: ['KLEVU_CATEGORY'], apiKeys: [$apiKey]);
+        $resultGenerators = $service->execute(entityTypes: ['KLEVU_CATEGORY'], apiKeys: [$apiKey]);
+        $resultsArray = [];
+        foreach ($resultGenerators as $resultGenerator) {
+            $resultsArray[] = iterator_to_array($resultGenerator);
+        }
+        $results = array_filter(
+            array_merge(...$resultsArray),
+        );
+        $result = array_shift($results);
+
         $this->assertTrue($result->isSuccess());
 
         $indexingEntities = $this->getCategoryIndexingEntities($apiKey);
@@ -772,6 +857,7 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $this->createIndexingEntity(data: [
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::TARGET_ID => (int)$category->getId(),
             IndexingEntity::IS_INDEXABLE => false,
             IndexingEntity::NEXT_ACTION => Actions::NO_ACTION,
@@ -780,7 +866,16 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         ]);
 
         $service = $this->instantiateTestObject();
-        $result = $service->execute(entityTypes: ['KLEVU_CATEGORY'], apiKeys: [$apiKey]);
+        $resultGenerators = $service->execute(entityTypes: ['KLEVU_CATEGORY'], apiKeys: [$apiKey]);
+        $resultsArray = [];
+        foreach ($resultGenerators as $resultGenerator) {
+            $resultsArray[] = iterator_to_array($resultGenerator);
+        }
+        $results = array_filter(
+            array_merge(...$resultsArray),
+        );
+        $result = array_shift($results);
+
         $this->assertTrue($result->isSuccess());
 
         $indexingEntities = $this->getCategoryIndexingEntities($apiKey);
@@ -813,6 +908,7 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $this->createIndexingEntity(data: [
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::TARGET_ID => (int)$category->getId(),
             IndexingEntity::IS_INDEXABLE => true,
             IndexingEntity::NEXT_ACTION => Actions::DELETE,
@@ -821,7 +917,16 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         ]);
 
         $service = $this->instantiateTestObject();
-        $result = $service->execute(entityTypes: ['KLEVU_CATEGORY'], apiKeys: [$apiKey]);
+        $resultGenerators = $service->execute(entityTypes: ['KLEVU_CATEGORY'], apiKeys: [$apiKey]);
+        $resultsArray = [];
+        foreach ($resultGenerators as $resultGenerator) {
+            $resultsArray[] = iterator_to_array($resultGenerator);
+        }
+        $results = array_filter(
+            array_merge(...$resultsArray),
+        );
+        $result = array_shift($results);
+
         $this->assertTrue($result->isSuccess());
 
         $indexingEntities = $this->getCategoryIndexingEntities($apiKey);
@@ -940,6 +1045,7 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $this->createIndexingEntity(data: [
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::TARGET_ID => (int)$category1->getId(),
             IndexingEntity::IS_INDEXABLE => false,
             IndexingEntity::NEXT_ACTION => Actions::NO_ACTION,
@@ -949,6 +1055,7 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $this->createIndexingEntity(data: [
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::TARGET_ID => (int)$category2->getId(),
             IndexingEntity::IS_INDEXABLE => true,
             IndexingEntity::NEXT_ACTION => Actions::DELETE,
@@ -958,6 +1065,7 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $this->createIndexingEntity(data: [
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::TARGET_ID => (int)$category3->getId(),
             IndexingEntity::IS_INDEXABLE => true,
             IndexingEntity::NEXT_ACTION => Actions::NO_ACTION,
@@ -966,7 +1074,16 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         ]);
 
         $service = $this->instantiateTestObject();
-        $result = $service->execute(entityTypes: ['KLEVU_CATEGORY'], apiKeys: [$apiKey]);
+        $resultGenerators = $service->execute(entityTypes: ['KLEVU_CATEGORY'], apiKeys: [$apiKey]);
+        $resultsArray = [];
+        foreach ($resultGenerators as $resultGenerator) {
+            $resultsArray[] = iterator_to_array($resultGenerator);
+        }
+        $results = array_filter(
+            array_merge(...$resultsArray),
+        );
+        $result = array_shift($results);
+
         $this->assertTrue($result->isSuccess());
 
         $indexingEntities = $this->getCategoryIndexingEntities($apiKey);
@@ -1268,6 +1385,7 @@ class EntityDiscoveryOrchestratorServiceTest extends TestCase
         $indexingEntity->setTargetId((int)$data[IndexingEntity::TARGET_ID]);
         $indexingEntity->setTargetParentId(null);
         $indexingEntity->setTargetEntityType($data[IndexingEntity::TARGET_ENTITY_TYPE] ?? 'KLEVU_CATEGORY');
+        $indexingEntity->setTargetEntitySubType($data[IndexingEntity::TARGET_ENTITY_SUBTYPE] ?? 'categories');
         $indexingEntity->setApiKey($data[IndexingEntity::API_KEY] ?? 'klevu-js-api-key');
         $indexingEntity->setNextAction($data[IndexingEntity::NEXT_ACTION] ?? Actions::NO_ACTION);
         $indexingEntity->setLastAction($data[IndexingEntity::LAST_ACTION] ?? Actions::NO_ACTION);

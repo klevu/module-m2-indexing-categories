@@ -174,9 +174,12 @@ class CategoryPluginTest extends TestCase
 
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::TARGET_ID => $category->getId(),
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::NEXT_ACTION => Actions::NO_ACTION,
+            IndexingEntity::LAST_ACTION => Actions::ADD,
+            IndexingEntity::LAST_ACTION_TIMESTAMP => date('Y-m-d H:i:s'),
             IndexingEntity::IS_INDEXABLE => true,
         ]);
 
@@ -259,6 +262,7 @@ class CategoryPluginTest extends TestCase
 
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::TARGET_ID => $category->getId(),
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::LAST_ACTION => Actions::ADD,
@@ -349,23 +353,32 @@ class CategoryPluginTest extends TestCase
 
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::TARGET_ID => $topCategoryFixture->getId(),
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::NEXT_ACTION => Actions::NO_ACTION,
+            IndexingEntity::LAST_ACTION => Actions::ADD,
+            IndexingEntity::LAST_ACTION_TIMESTAMP => date('Y-m-d H:i:s'),
             IndexingEntity::IS_INDEXABLE => true,
         ]);
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::TARGET_ID => $middleCategoryFixture->getId(),
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::NEXT_ACTION => Actions::NO_ACTION,
+            IndexingEntity::LAST_ACTION => Actions::ADD,
+            IndexingEntity::LAST_ACTION_TIMESTAMP => date('Y-m-d H:i:s'),
             IndexingEntity::IS_INDEXABLE => true,
         ]);
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::TARGET_ID => $bottomCategoryFixture->getId(),
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::NEXT_ACTION => Actions::NO_ACTION,
+            IndexingEntity::LAST_ACTION => Actions::ADD,
+            IndexingEntity::LAST_ACTION_TIMESTAMP => date('Y-m-d H:i:s'),
             IndexingEntity::IS_INDEXABLE => true,
         ]);
 

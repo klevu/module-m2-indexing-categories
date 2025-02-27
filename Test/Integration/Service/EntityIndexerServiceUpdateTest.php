@@ -83,7 +83,6 @@ class EntityIndexerServiceUpdateTest extends TestCase
     public function testExecute_ThrowsException_ForInvalidJsApiKey(): void
     {
         $apiKey = 'invalid-js-api-key';
-        $this->cleanIndexingEntities(apiKey: $apiKey);
 
         $this->createStore();
         $storeFixture = $this->storeFixturesPool->get('test_store');
@@ -101,6 +100,7 @@ class EntityIndexerServiceUpdateTest extends TestCase
         $this->cleanIndexingEntities(apiKey: $apiKey);
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::TARGET_ID => $categoryFixture->getId(),
             IndexingEntity::NEXT_ACTION => Actions::UPDATE,
@@ -115,7 +115,8 @@ class EntityIndexerServiceUpdateTest extends TestCase
         $this->mockBatchServicePutApiCall(isCalled: false);
 
         $service = $this->instantiateTestObject();
-        $service->execute(apiKey: $apiKey);
+        $results = $service->execute(apiKey: $apiKey);
+        $results->current();
     }
 
     /**
@@ -125,7 +126,6 @@ class EntityIndexerServiceUpdateTest extends TestCase
     public function testExecute_ThrowsException_ForInvalidRestAuthKey(): void
     {
         $apiKey = 'klevu-123456789';
-        $this->cleanIndexingEntities(apiKey: $apiKey);
 
         $this->createStore();
         $storeFixture = $this->storeFixturesPool->get('test_store');
@@ -143,6 +143,7 @@ class EntityIndexerServiceUpdateTest extends TestCase
         $this->cleanIndexingEntities(apiKey: $apiKey);
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::TARGET_ID => $categoryFixture->getId(),
             IndexingEntity::NEXT_ACTION => Actions::UPDATE,
@@ -157,13 +158,13 @@ class EntityIndexerServiceUpdateTest extends TestCase
         $this->mockBatchServicePutApiCall(isCalled: false);
 
         $service = $this->instantiateTestObject();
-        $service->execute(apiKey: $apiKey);
+        $results = $service->execute(apiKey: $apiKey);
+        $results->current();
     }
 
-    public function testExecute_ReturnsNoop_WhenNoCategoriesToUpdate(): void
+    public function testExecute_ReturnsNull_WhenNoCategoriesToUpdate(): void
     {
         $apiKey = 'klevu-js-key';
-        $this->cleanIndexingEntities(apiKey: $apiKey);
 
         $this->createStore();
         $storeFixture = $this->storeFixturesPool->get('test_store');
@@ -175,22 +176,19 @@ class EntityIndexerServiceUpdateTest extends TestCase
             restAuthKey: 'klevu-rest-key',
         );
 
+        $this->cleanIndexingEntities(apiKey: $apiKey);
         $this->mockBatchServicePutApiCall(isCalled: false);
 
         $service = $this->instantiateTestObject();
-        $result = $service->execute(apiKey: $apiKey);
+        $results = $service->execute(apiKey: $apiKey);
+        $result = $results->current();
 
-        $this->assertSame(
-            expected: IndexerResultStatuses::NOOP,
-            actual: $result->getStatus(),
-            message: 'Status: ' . $result->getStatus()->name,
-        );
+        $this->assertNull(actual: $result);
     }
 
-    public function testExecute_ReturnsNoop_WhenCategorySyncDisabled(): void
+    public function testExecute_ReturnsNull_WhenCategorySyncDisabled(): void
     {
         $apiKey = 'klevu-js-key';
-        $this->cleanIndexingEntities(apiKey: $apiKey);
 
         $this->createStore();
         $storeFixture = $this->storeFixturesPool->get('test_store');
@@ -226,6 +224,7 @@ class EntityIndexerServiceUpdateTest extends TestCase
         $this->cleanIndexingEntities(apiKey: $apiKey);
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::TARGET_ID => $categoryFixture->getId(),
             IndexingEntity::NEXT_ACTION => Actions::UPDATE,
@@ -235,13 +234,10 @@ class EntityIndexerServiceUpdateTest extends TestCase
         $this->mockBatchServiceDeleteApiCall(isCalled: false);
 
         $service = $this->instantiateTestObject();
-        $result = $service->execute(apiKey: $apiKey);
+        $results = $service->execute(apiKey: $apiKey);
+        $result = $results->current();
 
-        $this->assertSame(
-            expected: IndexerResultStatuses::NOOP,
-            actual: $result->getStatus(),
-            message: 'Status: ' . $result->getStatus()->name,
-        );
+        $this->assertNull(actual: $result);
     }
 
     /**
@@ -281,12 +277,14 @@ class EntityIndexerServiceUpdateTest extends TestCase
         $this->cleanIndexingEntities(apiKey: $apiKey);
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::TARGET_ID => $topCategory->getParentId(), // Root Category, should not be synced
             IndexingEntity::NEXT_ACTION => Actions::UPDATE,
         ]);
         $this->createIndexingEntity([
             IndexingEntity::TARGET_ENTITY_TYPE => 'KLEVU_CATEGORY',
+            IndexingEntity::TARGET_ENTITY_SUBTYPE => 'category',
             IndexingEntity::API_KEY => $apiKey,
             IndexingEntity::TARGET_ID => $categoryFixture->getId(),
             IndexingEntity::NEXT_ACTION => Actions::UPDATE,
@@ -296,7 +294,8 @@ class EntityIndexerServiceUpdateTest extends TestCase
         $this->mockBatchServiceDeleteApiCall(isCalled: false);
 
         $service = $this->instantiateTestObject();
-        $result = $service->execute(apiKey: $apiKey);
+        $results = $service->execute(apiKey: $apiKey);
+        $result = $results->current();
 
         $this->assertSame(
             expected: IndexerResultStatuses::SUCCESS,
