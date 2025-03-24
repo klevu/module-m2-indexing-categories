@@ -755,4 +755,15 @@
         </arguments>
     </type>
 
+    <type name="Klevu\Indexing\Setup\Patch\Data\RemoveGeneratedIndexingPipelineYaml">
+        <arguments>
+            <argument name="generatedConfigurationOverridesFilepathProviders" xsi:type="array">
+                <item name="indexing_categories_add_update"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\GeneratedConfigurationOverridesFilepathProvider\AddUpdate</item>
+                <item name="indexing_categories_add_delete"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\GeneratedConfigurationOverridesFilepathProvider\Delete</item>
+            </argument>
+        </arguments>
+    </type>
+
 </config>
