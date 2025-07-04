@@ -8,6 +8,9 @@
         <sequence>
             <module name="Klevu_Indexing"/>
             <module name="Magento_Catalog"/>
+            <module name="Magento_CatalogUrlRewrite"/>
+            <module name="Magento_Store"/>
+            <module name="Magento_UrlRewrite"/>
         </sequence>
     </module>
 </config>

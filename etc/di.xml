@@ -8,6 +8,9 @@
     <preference for="Klevu\IndexingCategories\Service\Provider\CategoryPathProviderInterface"
                 type="Klevu\IndexingCategories\Service\Provider\CategoryPathProvider"/>
 
+    <preference for="Klevu\IndexingCategories\Service\Provider\CategoryUrlProviderInterface"
+                type="Klevu\IndexingCategories\Service\Provider\CategoryUrlProvider"/>
+
     <preference for="Klevu\IndexingApi\Service\Provider\StaticAttributeProviderInterface"
                 type="Klevu\IndexingCategories\Service\Provider\StaticAttributeProvider"/>
 
@@ -640,6 +643,13 @@
         </arguments>
     </virtualType>
 
+    <type name="Klevu\IndexingCategories\Service\Provider\CategoryUrlProvider">
+        <arguments>
+            <argument name="logger" xsi:type="object">Klevu\Indexing\Logger\Logger</argument>
+            <argument name="urlBuilder" xsi:type="object">Klevu\Indexing\Framework\Url</argument>
+        </arguments>
+    </type>
+
     <virtualType name="Klevu\IndexingCategories\Service\EntityIndexerService\Update"
                  type="Klevu\Indexing\Service\EntityIndexerService">
         <arguments>
@@ -763,6 +773,12 @@
                 <item name="indexing_categories_add_delete"
                       xsi:type="object">Klevu\IndexingCategories\Service\Provider\GeneratedConfigurationOverridesFilepathProvider\Delete</item>
             </argument>
+        </arguments>
+    </type>
+
+    <type name="Klevu\IndexingCategories\Pipeline\Provider\Argument\Transformer\ToCategoryUrlArgumentProvider">
+        <arguments>
+            <argument name="argumentProvider" xsi:type="object">Klevu\Pipelines\Provider\ArgumentProvider</argument>
         </arguments>
     </type>
 

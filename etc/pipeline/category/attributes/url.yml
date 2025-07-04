@@ -2,4 +2,6 @@ stages:
   getUrl:
     pipeline: Stage\Extract
     args:
-      extraction: currentCategory::getUrl()
+      extraction: currentCategory::
+      transformations:
+        - ToCategoryUrl($store::getForCurrentStore().store_id)

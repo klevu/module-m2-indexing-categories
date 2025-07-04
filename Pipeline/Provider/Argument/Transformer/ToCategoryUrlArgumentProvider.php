@@ -8,12 +8,12 @@ declare(strict_types=1);
 
 namespace Klevu\IndexingCategories\Pipeline\Provider\Argument\Transformer;
 
-use Klevu\IndexingCategories\Pipeline\Transformer\ToCategoryPath;
+use Klevu\IndexingCategories\Pipeline\Transformer\ToCategoryUrl;
 use Klevu\Pipelines\Exception\Transformation\InvalidTransformationArgumentsException;
 use Klevu\Pipelines\Model\ArgumentIterator;
 use Klevu\Pipelines\Provider\ArgumentProviderInterface;
 
-class ToCategoryPathArgumentProvider
+class ToCategoryUrlArgumentProvider
 {
     public const ARGUMENT_INDEX_STORE_ID = 0;
 
@@ -25,8 +25,9 @@ class ToCategoryPathArgumentProvider
     /**
      * @param ArgumentProviderInterface $argumentProvider
      */
-    public function __construct(ArgumentProviderInterface $argumentProvider)
-    {
+    public function __construct(
+        ArgumentProviderInterface $argumentProvider,
+    ) {
         $this->argumentProvider = $argumentProvider;
     }
 
@@ -51,12 +52,12 @@ class ToCategoryPathArgumentProvider
         );
         if (null !== $argumentValue && !is_numeric($argumentValue)) {
             throw new InvalidTransformationArgumentsException(
-                transformerName: ToCategoryPath::class,
+                transformerName: ToCategoryUrl::class,
                 errors: [
                     sprintf(
                         'Store ID argument (%s) for %s must be integer or null; Received %s',
                         self::ARGUMENT_INDEX_STORE_ID,
-                        ToCategoryPath::class,
+                        ToCategoryUrl::class,
                         is_scalar($argumentValue)
                             ? $argumentValue
                             : get_debug_type($argumentValue),
