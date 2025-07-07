@@ -67,6 +67,7 @@ class CategoryEntityProvider implements EntityProviderInterface
      * @param string $entitySubtype
      * @param int|null $batchSize
      * @param ValidatorInterface|null $batchSizeValidator
+     * @param ExpressionFactory|null $expressionFactory
      *
      * @throws \InvalidArgumentException
      */
@@ -160,6 +161,7 @@ class CategoryEntityProvider implements EntityProviderInterface
         int $currentEntityId = 1,
     ): CategoryCollection {
         // @TODO extract to own class
+
         /** @var CategoryCollection $categoryCollection */
         $categoryCollection = $this->categoryCollectionFactory->create();
         $categoryCollection->addAttributeToSelect(attribute: '*');
@@ -184,6 +186,7 @@ class CategoryEntityProvider implements EntityProviderInterface
                 ],
             );
         }
+        $categoryCollection->joinUrlRewrite();
         if ($entityIds) {
             $categoryCollection->addFieldToFilter(
                 Entity::DEFAULT_ENTITY_ID_FIELD,

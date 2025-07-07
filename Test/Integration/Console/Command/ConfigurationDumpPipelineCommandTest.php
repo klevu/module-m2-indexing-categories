@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 
-namespace Klevu\IndexingCms\Test\Integration\Console\Command;
+namespace Klevu\IndexingCategories\Test\Integration\Console\Command;
 
 use Klevu\Indexing\Console\Command\ConfigurationDumpPipelineCommand;
 use Klevu\TestFixtures\Traits\ObjectInstantiationTrait;
