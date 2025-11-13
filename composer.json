@@ -2,10 +2,10 @@
     "name": "klevu/module-m2-indexing-categories",
     "description": "Provides category data and configuration for Klevu indexing",
     "type": "magento2-module",
-    "version": "3.1.1",
+    "version": "3.1.2",
     "require": {
-        "klevu/module-m2-indexing": "^3.1.1",
-        "klevu/module-m2-indexing-api": "^3.1.1",
+        "klevu/module-m2-indexing": "^3.3.0",
+        "klevu/module-m2-indexing-api": "^3.2.0",
         "magento/module-catalog": "^104.0.4",
         "magento/module-catalog-url-rewrite": "@stable",
         "magento/module-store": "@stable",
