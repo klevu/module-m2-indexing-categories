@@ -156,6 +156,21 @@ class StaticAttributeProvider implements StaticAttributeProviderInterface
             }
             $attribute = $attribute->setFrontendLabels($labels);
         }
+        if (($data['is_global'] ?? null)) {
+            $attribute->setData(key: 'is_global', value: $data['frontend_input']);
+        }
+        if (($data['is_html_allowed_on_front'] ?? null)) {
+            $attribute->setIsHtmlAllowedOnFront(isHtmlAllowedOnFront: $data['is_html_allowed_on_front']);
+        }
+        if (($data['frontend_input'] ?? null)) {
+            $attribute->setFrontendInput(frontendInput: $data['frontend_input']);
+        }
+        if (($data['backend_type'] ?? null)) {
+            $attribute->setBackendType($data['backend_type']);
+        }
+        if (($data['source_model'] ?? null)) {
+            $attribute->setSourceModel(sourceModel: $data['source_model']);
+        }
 
         return $attribute;
     }

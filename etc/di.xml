@@ -782,4 +782,12 @@
         </arguments>
     </type>
 
+    <type name="Klevu\Indexing\Cron\ProcessRequireUpdateEntities">
+        <arguments>
+            <argument name="entityDiscoveryProviders" xsi:type="array">
+                <item name="KLEVU_CATEGORY" xsi:type="object">Klevu\IndexingCategories\Service\Provider\EntityDiscoveryProvider\Batched</item>
+            </argument>
+        </arguments>
+    </type>
+
 </config>
