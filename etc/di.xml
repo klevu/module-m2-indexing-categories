@@ -14,6 +14,17 @@
     <preference for="Klevu\IndexingApi\Service\Provider\StaticAttributeProviderInterface"
                 type="Klevu\IndexingCategories\Service\Provider\StaticAttributeProvider"/>
 
+    <type name="Klevu\Indexing\Service\KlevuToMagentoEntityTypeMap">
+        <arguments>
+            <argument name="klevuToMagentoEntityTypeMapItems" xsi:type="array">
+                <item name="magentoCategory" xsi:type="array">
+                    <item name="klevu_entity_type" xsi:type="string">KLEVU_CATEGORY</item>
+                    <item name="magento_entity_type_id" xsi:type="number">3</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
     <type name="Klevu\IndexingCategories\Observer\CategoryAttributeObserver">
         <arguments>
             <argument name="responderService"
