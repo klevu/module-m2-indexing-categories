@@ -287,6 +287,33 @@
         </arguments>
     </type>
 
+    <type name="Klevu\IndexingCategories\Service\Provider\EntitySyncConditionsValuesProvider">
+        <arguments>
+            <argument name="isIndexableDeterminer"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Determiner\IsIndexableDeterminer</argument>
+        </arguments>
+    </type>
+
+    <type name="Klevu\Indexing\Service\Provider\EntitySyncConditionsValuesProvider">
+        <arguments>
+            <argument name="entitySyncConditionsValuesProviders" xsi:type="array">
+                <item name="KLEVU_CATEGORY"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Provider\EntitySyncConditionsValuesProvider</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Klevu\Indexing\Console\Command\EntitySyncInformationCommand">
+        <arguments>
+            <argument name="isIndexableDeterminers" xsi:type="array">
+                <item name="KLEVU_CATEGORY"
+                      xsi:type="object">Klevu\IndexingCategories\Service\Determiner\IsIndexableDeterminer</item>
+            </argument>
+        </arguments>
+        <plugin name="Klevu_IndexingCategories::AddCmsSyncInformationPlugin"
+                type="Klevu\IndexingCategories\Plugin\Console\Command\EntitySyncInformationCommand\AddCategorySyncInformationPlugin"/>
+    </type>
+
     <type name="Klevu\IndexingCategories\Service\Provider\StaticAttributeProvider">
         <arguments>
             <argument name="logger" xsi:type="object">Klevu\Indexing\Logger\Logger</argument>
